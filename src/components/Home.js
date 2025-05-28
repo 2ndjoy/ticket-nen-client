@@ -2,6 +2,7 @@ import React, { useState, useEffect } from "react";
 import { Link } from "react-router-dom";
 import { motion } from "framer-motion";
 import Tilt from "react-parallax-tilt";
+import Carousel from "./Carousel";
 
 export default function Home() {
   // Detect if device is mobile based on window width (<=768px)
@@ -30,38 +31,37 @@ export default function Home() {
         transition={{ duration: 10, repeat: Infinity }}
         style={{ top: "-5rem", left: "-5rem", zIndex: 0 }}
       />
+      {/* Carousel Section */}
+<section className="relative py-16 px-6 md:px-20 bg-gray-100 overflow-hidden">
+  {/* Background blobs */}
+  <motion.div
+    className="absolute w-64 h-64 bg-purple-400 rounded-full mix-blend-multiply filter blur-3xl opacity-30 animate-blob"
+    animate={{ x: [0, 30, -30, 0], y: [0, 40, -40, 0] }}
+    transition={{ duration: 12, repeat: Infinity }}
+    style={{ top: "-6rem", left: "-6rem", zIndex: 0 }}
+  />
+  <motion.div
+    className="absolute w-64 h-64 bg-pink-400 rounded-full mix-blend-multiply filter blur-3xl opacity-30 animate-blob"
+    animate={{ x: [0, -20, 20, 0], y: [0, -30, 30, 0] }}
+    transition={{ duration: 15, repeat: Infinity, delay: 2 }}
+    style={{ bottom: "-6rem", right: "-6rem", zIndex: 0 }}
+  />
+  <motion.div
+    className="absolute w-48 h-48 bg-yellow-300 rounded-full mix-blend-multiply filter blur-3xl opacity-20 animate-blob"
+    animate={{ x: [0, 15, -15, 0], y: [0, 25, -25, 0] }}
+    transition={{ duration: 10, repeat: Infinity, delay: 4 }}
+    style={{ top: "20%", right: "20%", zIndex: 0 }}
+  />
+  {/* Carousel itself */}
+  <div className="relative z-10">
+    <Carousel />
+  </div>
+</section>
 
-      {/* Hero Section */}
-      <section
-        className="relative z-10 bg-[url('https://images.unsplash.com/photo-1504680177321-2e6a879aac86?crop=entropy&cs=tinysrgb&fit=max&fm=jpg&ixid=MnwxMjA3fDB8MXxzZWFyY2h8NHx8bXVzaWMlMjBldmVudHx8MHx8fHwxNjI1ODI5NDE4&ixlib=rb-1.2.1&q=80&w=1080')] bg-cover bg-center min-h-screen flex items-center justify-center"
-      >
-        <motion.div
-          className="backdrop-blur-md bg-black bg-opacity-40 p-8 rounded-2xl max-w-2xl text-center"
-          initial={{ opacity: 0, y: -30 }}
-          animate={{ opacity: 1, y: 0 }}
-          transition={{ duration: 1 }}
-        >
-          <h1 className="text-4xl md:text-5xl font-bold text-white mb-4">
-            Find & Book Tickets Instantly
-          </h1>
-          <p className="text-white text-lg mb-6">
-            Concerts, Sports, Theater & More. Secure your spot now!
-          </p>
-          <Link to="/events">
-            <motion.button
-              whileHover={{ scale: 1.05 }}
-              whileTap={{ scale: 0.95 }}
-              className="bg-yellow-400 text-black px-6 py-3 rounded-full font-semibold text-lg hover:bg-yellow-500 transition"
-            >
-              Browse Events
-            </motion.button>
-          </Link>
-        </motion.div>
-      </section>
 
       {/* Categories */}
       <section className="py-16 px-6 md:px-20 bg-gray-50">
-        <h2 className="text-3xl font-bold text-center mb-10">Popular Categories</h2>
+        <h2 className="text-3xl font-bold text-center mb-10 animate-pulse">Popular Categories</h2>
         <div className="grid md:grid-cols-3 gap-8">
           {categories.map((cat, index) => (
             <Tilt
@@ -97,7 +97,7 @@ export default function Home() {
 
       {/* Featured Events */}
       <section className="py-16 px-6 md:px-20">
-        <h2 className="text-3xl font-bold text-center mb-10">Featured Events</h2>
+        <h2 className="text-3xl font-bold text-center mb-10 animate-pulse">Featured Events</h2>
         <div className="grid md:grid-cols-3 gap-8">
           {[1, 2, 3].map((i, index) => (
             <Tilt
@@ -138,7 +138,7 @@ export default function Home() {
 
       {/* Call to Action */}
       <motion.section
-        className="py-16 bg-yellow-400 text-center"
+        className="py-16 bg-[#128f8b] text-center"
         initial={{ opacity: 0 }}
         whileInView={{ opacity: 1 }}
         transition={{ duration: 0.8 }}
