@@ -47,16 +47,16 @@ const Register = () => {
   return (
     <div className="relative min-h-screen bg-gradient-to-br from-[#1e293b] via-[#334155] to-[#1e293b] flex items-center justify-center px-4 overflow-hidden">
       {/* Floating Cards */}
-      <motion.div {...floatAnim} className="absolute top-16 left-10 w-24 h-32 bg-white/10 backdrop-blur-xl rounded-2xl shadow-md border border-white/20 overflow-hidden">
+      <motion.div {...floatAnim} className="absolute top-16 left-10 w-24 h-32  overflow-hidden">
         <img src={card1} alt="Card" className="w-full h-full object-cover" />
       </motion.div>
-      <motion.div {...floatAnim} className="absolute top-10 right-12 w-24 h-32 bg-white/10 backdrop-blur-xl rounded-2xl shadow-md border border-white/20 overflow-hidden">
+      <motion.div {...floatAnim} className="absolute top-10 right-12 w-24 h-32  overflow-hidden">
         <img src={card2} alt="Card" className="w-full h-full object-cover" />
       </motion.div>
-      <motion.div {...floatAnim} className="absolute bottom-28 left-16 w-24 h-32 bg-white/10 backdrop-blur-xl rounded-2xl shadow-md border border-white/20 overflow-hidden">
+      <motion.div {...floatAnim} className="absolute bottom-28 left-16 w-24 h-32  overflow-hidden">
         <img src={card3} alt="Card" className="w-full h-full object-cover" />
       </motion.div>
-      <motion.div {...floatAnim} className="absolute bottom-10 right-16 w-24 h-32 bg-white/10 backdrop-blur-xl rounded-2xl shadow-md border border-white/20 overflow-hidden">
+      <motion.div {...floatAnim} className="absolute bottom-10 right-16 w-24 h-32  overflow-hidden">
         <img src={card4} alt="Card" className="w-full h-full object-cover" />
       </motion.div>
 
@@ -102,7 +102,7 @@ const Register = () => {
           transition={{ duration: 1 }}
           className="text-3xl font-bold text-center mb-6"
         >
-          Create Your Account ✨
+          Click. Book. Enjoy!
         </motion.h2>
 
         <form onSubmit={handleRegister} className="space-y-5">

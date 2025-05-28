@@ -1,7 +1,7 @@
 import React, { useState } from "react";
 import { Menu, X } from "lucide-react";
 import { Link } from "react-router-dom";
-import myLogo from '../images/AppLogo.png';
+import myLogo from '../images/AppLogo2.png';
 
 
 const Navbar = () => {
@@ -10,17 +10,17 @@ const Navbar = () => {
   const toggleMenu = () => setIsOpen(!isOpen);
 
   return (
-    <nav className="bg-[#faf6ed] px-6 py-4 border-b-4 border-black relative">
+    <nav className="bg-[#faf6ed] px-6 py-2 border-b-4 border-black relative">
 
       <div className="flex items-center justify-between">
         {/* Left: Logo & Title */}
         <div className="flex items-center space-x-6 border-l-4 border-black pl-4">
-          <Link to="/"><img src={myLogo} alt="Ticket Nen BD" className="h-[80px]" /></Link>
+          <Link to="/"><img src={myLogo} alt="Ticket Nen BD" className="h-[70px]" /></Link>
         </div>
 
         {/* Center: Nav Links (desktop) */}
         <ul className="hidden lg:flex space-x-6 text-md font-light font-serif ml-10">
-          <li className="border-b-2 border-black pb-1 font-semibold">
+          <li>
             <Link to="/">Home</Link>
           </li>
           <li><Link to="/blog">Blog</Link></li>
