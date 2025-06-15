@@ -13,7 +13,7 @@ import {
   Cell,
 } from "recharts";
 import { Link } from "react-router-dom";
-import { BarChart3, CalendarDays, Home, PieChart as PieChartIcon } from "lucide-react";
+import { BarChart3, CalendarDays, Home, PieChart as PieChartIcon, Ticket } from "lucide-react";
 
 const lineData = [
   { name: "Jan", events: 4 },
@@ -47,7 +47,11 @@ export default function Admin() {
           <Link to="/admin/charts" className="flex items-center gap-2 hover:text-yellow-300">
             <BarChart3 size={18} /> Charts
           </Link>
+           <Link to="/admin/tickets-sold" className="flex items-center gap-2 hover:text-yellow-300">
+            <Ticket size={18} /> Tickets Sold
+            </Link>
         </nav>
+        
       </aside>
 
       {/* Main Content */}
