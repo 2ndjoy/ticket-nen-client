@@ -23,6 +23,7 @@ import TicketsSold from "./components/admin/TicketsSold";
 import Charts from "./components/admin/Charts";
 import AdminLayout from "./components/admin/AdminLayout";
 import OrganizerLayout from "./components/organizer/OrganizerLayout";
+import PromoteEvent from "./components/PromoteEvent";
 
 
 function Routers() {
@@ -36,6 +37,7 @@ function Routers() {
         <Route path="/about" element={<AboutUs />} />
         <Route path="/login" element={<Log_in/>} />
         <Route path="/register" element={<Register/>} />
+        <Route path="/promoteevent" element={<PromoteEvent/>} />
         
        {/* Admin Routes with Sidebar Layout */}
         <Route path="/admin" element={<AdminLayout />}>

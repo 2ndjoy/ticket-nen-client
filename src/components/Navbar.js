@@ -43,8 +43,8 @@ const Navbar = () => {
         </motion.div>
 
         {/* Desktop nav links with hover animations */}
-        <ul className="hidden lg:flex space-x-6 text-md font-light font-serif ml-10">
-          {["Home", "Blog", "Contact", "About Us"].map((text, i) => (
+        <ul className="hidden lg:flex space-x-6 text-md font-light font-serif mr-20  ">
+          {["Home", "Blog", "Contact","Promote event", "About Us"].map((text, i) => (
             <motion.li key={text} whileHover={navLinkHover} className="cursor-pointer">
               <Link to={`/${text.toLowerCase().replace(/\s/g, '')}`}>{text}</Link>
             </motion.li>
@@ -88,7 +88,7 @@ const Navbar = () => {
             variants={menuVariants}
           >
             <ul className="flex flex-col gap-4 text-md font-serif">
-              {["Home", "Blog", "Contact", "About Us"].map((text) => (
+              {["Home", "Blog", "Contact","Promote event", "About Us"].map((text) => (
                 <motion.li
                   key={text}
                   whileHover={{ scale: 1.05, color: "#117a76" }}
