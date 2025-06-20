@@ -31,10 +31,11 @@ function Routers() {
     <>
       <Navbar />
       <Routes>
-        <Route path="/" element={<Home />} />
+        <Route path="/" element={<Home />} />    
+         <Route path="/home" element={<Home />} />
         <Route path="/blog" element={<Blog />} />
         <Route path="/contact" element={<Contact />} />
-        <Route path="/about" element={<AboutUs />} />
+        <Route path="/aboutus" element={<AboutUs />} />
         <Route path="/login" element={<Log_in/>} />
         <Route path="/register" element={<Register/>} />
         <Route path="/promoteevent" element={<PromoteEvent/>} />
