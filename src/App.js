@@ -52,6 +52,7 @@ function Routers() {
 
 
       <Route path="/organizer" element={<OrganizerLayout />}>
+      <Route index element={<OrganizerDashboard />} /> 
   <Route path="organizer-dashboard" element={<OrganizerDashboard />} />
   <Route path="add-event" element={<AddEventPage />} />
   <Route path="my-events" element={<MyEvents />} />
