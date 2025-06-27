@@ -28,6 +28,7 @@ import { Toaster } from "react-hot-toast";
 import MyProfile from "./components/MyProfile";
 import ForgetPassword from "./components/ForgetPassword";
 import ResetPassword from "./components/ResetPassword ";
+import EmailVerification from "./components/EmailVerification";
 
 
 function Routers() {
@@ -47,6 +48,7 @@ function Routers() {
         <Route path="/promoteevent" element={<PromoteEvent/>} />
         <Route path="/forgot-password" element={<ForgetPassword />} />
         <Route path="/reset-password" element={<ResetPassword />} />
+        {/* <Route path="/verify-email" element={<EmailVerification />} /> */}
        {/* Admin Routes with Sidebar Layout */}
         <Route path="/admin" element={<AdminLayout />}>
           <Route index element={<AdminDashboard />} /> {/* Default: /admin */}
