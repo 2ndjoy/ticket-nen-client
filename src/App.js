@@ -24,11 +24,16 @@ import Charts from "./components/admin/Charts";
 import AdminLayout from "./components/admin/AdminLayout";
 import OrganizerLayout from "./components/organizer/OrganizerLayout";
 import PromoteEvent from "./components/PromoteEvent";
+import { Toaster } from "react-hot-toast";
+import MyProfile from "./components/MyProfile";
+import ForgetPassword from "./components/ForgetPassword";
+import ResetPassword from "./components/ResetPassword ";
 
 
 function Routers() {
   return (
     <>
+       <Toaster position="top-center" reverseOrder={false} />
       <Navbar />
       <Routes>
         <Route path="/" element={<Home />} />    
@@ -38,8 +43,10 @@ function Routers() {
         <Route path="/aboutus" element={<AboutUs />} />
         <Route path="/login" element={<Log_in/>} />
         <Route path="/register" element={<Register/>} />
+        <Route path="/my-profile" element={<MyProfile/>} />
         <Route path="/promoteevent" element={<PromoteEvent/>} />
-        
+        <Route path="/forgot-password" element={<ForgetPassword />} />
+        <Route path="/reset-password" element={<ResetPassword />} />
        {/* Admin Routes with Sidebar Layout */}
         <Route path="/admin" element={<AdminLayout />}>
           <Route index element={<AdminDashboard />} /> {/* Default: /admin */}

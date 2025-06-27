@@ -1,12 +1,15 @@
 import React, { useState } from "react";
 import { motion } from "framer-motion";
-import { Link } from "react-router-dom";
+import { Link, useNavigate } from "react-router-dom";
 import { FcGoogle } from "react-icons/fc";
+import toast from "react-hot-toast";
+import { signInWithEmailAndPassword } from "firebase/auth";
+import { auth } from "../firebase";
+
 import card1 from "../images/4.png";
 import card2 from "../images/6.png";
 import card3 from "../images/6.png";
 import card4 from "../images/4.png";
-
 
 const floatAnim = {
   animate: {
@@ -21,46 +24,52 @@ const floatAnim = {
 
 const Login = () => {
   const [isLoading, setIsLoading] = useState(false);
+  const [email, setEmail] = useState("");
+  const [password, setPassword] = useState("");
+  const navigate = useNavigate();
 
-  const handleLogin = (e) => {
+  const handleLogin = async (e) => {
     e.preventDefault();
     setIsLoading(true);
-    setTimeout(() => {
+
+    try {
+      const userCredential = await signInWithEmailAndPassword(auth, email, password);
+      const user = userCredential.user;
+
+      toast.success("Logged in successfully!");
+      console.log("User:", user);
+
+      // Redirect to profile page or dashboard
+      navigate("/");
+    } catch (err) {
+      console.error("Login error:", err);
+      toast.error(err.message || "Login failed");
+    } finally {
       setIsLoading(false);
-      alert("Logged in!");
-    }, 2500);
+    }
   };
 
   return (
     <div className="relative min-h-screen bg-gradient-to-br from-[#0f172a] via-[#1e293b] to-[#0f172a] flex items-center justify-center px-4 overflow-hidden py-[0.5px]">
-  {/* Floating Images */}
-<motion.div
-  {...floatAnim}
-  className="absolute top-16 left-8 w-32 h-40 flex items-center justify-center overflow-hidden"
->
-  <img src={card1} alt="Card 1" className="w-full h-full object-cover rounded-2xl" />
-</motion.div>
 
-<motion.div
-  {...floatAnim}
-  className="absolute top-24 right-8 w-32 h-40 flex items-center justify-center overflow-hidden"
->
-  <img src={card2} alt="Card 2" className="w-full h-full object-cover rounded-2xl" />
-</motion.div>
-
-<motion.div
-  {...floatAnim}
-  className="absolute bottom-20 left-14 w-32 h-40 flex items-center justify-center overflow-hidden"
->
-  <img src={card3} alt="Card 3" className="w-full h-full object-cover rounded-2xl" />
-</motion.div>
-
-<motion.div
-  {...floatAnim}
-  className="absolute bottom-14 right-16 w-32 h-40 flex items-center justify-center overflow-hidden"
->
-  <img src={card4} alt="Card 4" className="w-full h-full object-cover rounded-2xl" />
-</motion.div>
+      {/* Floating Images */}
+      {[card1, card2, card3, card4].map((card, i) => (
+        <motion.div
+          key={i}
+          {...floatAnim}
+          className={`absolute w-32 h-40 flex items-center justify-center overflow-hidden ${
+            i === 0
+              ? "top-16 left-8"
+              : i === 1
+              ? "top-24 right-8"
+              : i === 2
+              ? "bottom-20 left-14"
+              : "bottom-14 right-16"
+          }`}
+        >
+          <img src={card} alt={`Card ${i}`} className="w-full h-full object-cover rounded-2xl" />
+        </motion.div>
+      ))}
 
       {/* Login Card */}
       <div className="z-10 w-full max-w-md bg-white/10 backdrop-blur-2xl text-white rounded-3xl p-8 shadow-2xl border border-white/20">
@@ -70,7 +79,7 @@ const Login = () => {
           transition={{ duration: 1 }}
           className="text-3xl font-bold text-center mb-6"
         >
-         Skip the Line, Book Online!
+          Skip the Line, Book Online!
         </motion.h2>
 
         <form onSubmit={handleLogin} className="space-y-5">
@@ -79,7 +88,9 @@ const Login = () => {
             <input
               type="email"
               required
-              className="w-full px-4 py-2 rounded-xl border-none bg-white/10 text-white placeholder-white/60 focus:ring-2 focus:ring-white focus:outline-none"
+              value={email}
+              onChange={(e) => setEmail(e.target.value)}
+              className="w-full px-4 py-2 rounded-xl bg-white/10 text-white placeholder-white/60 focus:ring-2 focus:ring-white outline-none"
               placeholder="Enter your email"
             />
           </div>
@@ -88,7 +99,9 @@ const Login = () => {
             <input
               type="password"
               required
-              className="w-full px-4 py-2 rounded-xl border-none bg-white/10 text-white placeholder-white/60 focus:ring-2 focus:ring-white focus:outline-none"
+              value={password}
+              onChange={(e) => setPassword(e.target.value)}
+              className="w-full px-4 py-2 rounded-xl bg-white/10 text-white placeholder-white/60 focus:ring-2 focus:ring-white outline-none"
               placeholder="••••••••"
             />
           </div>
@@ -98,10 +111,12 @@ const Login = () => {
               <input type="checkbox" className="mr-2" />
               Remember me
             </label>
-            <a href="#" className="hover:underline">Forgot password?</a>
-          </div>
+            <Link to="/forgot-password" className="underline text-white font-medium">
+    Forgot password?
+  </Link>
+              </div>
 
-          {/* Login Button with Progress */}
+          {/* Login Button */}
           <button
             type="submit"
             disabled={isLoading}
@@ -112,8 +127,6 @@ const Login = () => {
             <span className="relative z-10">
               {isLoading ? "Logging in..." : "Login"}
             </span>
-
-            {/* Progress bar animation */}
             {isLoading && (
               <motion.div
                 initial={{ width: 0 }}
@@ -125,7 +138,6 @@ const Login = () => {
           </button>
         </form>
 
-        {/* Sign in with Google */}
         <div className="mt-6">
           <button className="w-full flex items-center justify-center gap-3 bg-white text-[#0f172a] font-medium py-2 rounded-xl shadow hover:bg-gray-100 transition">
             <FcGoogle className="text-xl" />
