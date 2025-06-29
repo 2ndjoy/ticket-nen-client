@@ -33,7 +33,7 @@ export default function TicketsSold() {
         <div className="mb-6 p-6 bg-white rounded-xl shadow-md">
           <h3 className="text-xl font-semibold mb-2">Overall Revenue:</h3>
           <p className="text-2xl font-bold text-green-600">
-            ${totalRevenue.toLocaleString(undefined, { minimumFractionDigits: 2 })}
+            <b> ৳ </b>{totalRevenue.toLocaleString(undefined, { minimumFractionDigits: 2 })}
           </p>
         </div>
 
@@ -43,8 +43,8 @@ export default function TicketsSold() {
               <tr className="bg-gray-200">
                 <th className="border border-gray-300 px-4 py-2 text-left">Event Name</th>
                 <th className="border border-gray-300 px-4 py-2 text-right">Tickets Sold</th>
-                <th className="border border-gray-300 px-4 py-2 text-right">Ticket Price ($)</th>
-                <th className="border border-gray-300 px-4 py-2 text-right">Revenue ($)</th>
+                <th className="border border-gray-300 px-4 py-2 text-right">Ticket Price (<b> ৳ </b>)</th>
+                <th className="border border-gray-300 px-4 py-2 text-right">Revenue (<b> ৳ </b>)</th>
                 <th className="border border-gray-300 px-4 py-2 text-left">Date</th>
               </tr>
             </thead>

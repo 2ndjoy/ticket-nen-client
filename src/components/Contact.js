@@ -41,7 +41,7 @@ export default function Contact() {
             </div>
             <button
               type="submit"
-              className="bg-yellow-400 text-black px-6 py-2 rounded-full font-semibold hover:bg-yellow-500 transition"
+              className="bg-green-400 text-black px-6 py-2 rounded-full font-semibold hover:bg-green-500 transition"
             >
               Send Message
             </button>
@@ -51,15 +51,15 @@ export default function Contact() {
           <div className="space-y-6">
             <div>
               <h3 className="text-lg font-semibold">Email</h3>
-              <p className="text-gray-600">support@ticketeasy.com</p>
+              <p className="text-gray-600">support@ticketnenbd.com</p>
             </div>
             <div>
               <h3 className="text-lg font-semibold">Phone</h3>
-              <p className="text-gray-600">+1 (800) 123-4567</p>
+              <p className="text-gray-600">+880 1731047260</p>
             </div>
             <div>
               <h3 className="text-lg font-semibold">Address</h3>
-              <p className="text-gray-600">123 Main St, New York, NY 10001, USA</p>
+              <p className="text-gray-600">Tilagor Point , Sylhet, SYL 3000, BD</p>
             </div>
           </div>
         </div>

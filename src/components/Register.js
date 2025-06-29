@@ -62,13 +62,15 @@ const Register = () => {
       newErrors.fullName = "Full name must be 3-50 letters only.";
     }
 
-    if (!/^[\w.-]+@[a-zA-Z\d.-]+\.[a-zA-Z]{2,6}$/.test(email)) {
-      newErrors.email = "Enter a valid email address.";
+   if (!/^[a-zA-Z0-9._%+-]+@[a-zA-Z0-9.-]+\.[a-zA-Z]{2,}$/.test(email)) {
+  newErrors.email = "Please enter a valid email address.";
+}
+
+
+    if (!/^(?:\+?8801|\b01)[0-9]{9}$/.test(phoneNumber)) {
+      newErrors.phoneNumber = "Please enter a valid phone number.";
     }
 
-    if (!/^(\+?\d{1,3}[- ]?)?\d{10}$/.test(phoneNumber)) {
-      newErrors.phoneNumber = "Enter a valid 10-digit phone number.";
-    }
 
     if (
       !/^(?=.*[A-Za-z])(?=.*\d)(?=.*[@$!%*#?&])[A-Za-z\d@$!%*#?&]{6,}$/.test(password)

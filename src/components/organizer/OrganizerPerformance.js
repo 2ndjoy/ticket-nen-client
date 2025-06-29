@@ -29,7 +29,7 @@ export default function OrganizerPerformance() {
         </div>
         <div className="bg-white p-6 rounded-lg shadow">
           <p className="text-lg font-medium">Total Revenue</p>
-          <p className="text-3xl font-bold mt-2">৳133,000</p>
+          <p className="text-3xl font-bold mt-2"><b> ৳ </b> 133,000</p>
         </div>
       </div>
 

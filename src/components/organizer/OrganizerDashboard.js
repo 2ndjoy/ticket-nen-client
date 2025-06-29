@@ -24,7 +24,7 @@ export default function OrganizerDashboard() {
     },
     {
       title: "Total Revenue",
-      value: "$18,000",
+      value: "৳ 18,000",
       icon: <BarChart3 className="text-purple-600 w-6 h-6" />,
       bg: "bg-purple-100"
     },
