@@ -88,6 +88,18 @@ export default function PromoteEvent() {
 
   return (
     <div className="max-w-3xl mx-auto p-6 bg-white rounded-lg shadow-md mt-10 font-light font-serif">
+     <div className="bg-gradient-to-r from-[#128f8b] to-[#0e6b69] text-white p-6 rounded-lg shadow-md mb-10 text-center">
+  <h2 className="text-2xl font-bold mb-2">Register as an organizer to promote your event</h2>
+  <p className="mb-4">Reach more people and manage your event easily.</p>
+  <button
+    onClick={() => window.location.href = "/register"} // Replace with your register route
+    className="bg-white text-[#128f8b] font-semibold px-6 py-2 rounded shadow hover:bg-gray-100 transition"
+  >
+    Register Now
+  </button>
+</div>
+
+     
       <h1 className="text-3xl font-bold mb-6 text-center">Promote Your Event</h1>
 
       <form onSubmit={handleSubmit} className="space-y-5">

@@ -319,17 +319,7 @@ const Register = () => {
               </button>
             </form>
 
-            {/* Google Button */}
-            <div className="mt-6">
-              <button
-                onClick={() => toast("Google signup coming soon!")}
-                className="w-full flex items-center justify-center gap-3 bg-white text-[#1e293b] font-medium py-2 rounded-xl shadow hover:bg-gray-100 transition"
-              >
-                <FcGoogle className="text-xl" />
-                Sign up with Google
-              </button>
-            </div>
-
+            
             {/* Redirect to login */}
             <p className="mt-6 text-sm text-center text-white/80">
               Already have an account?{" "}

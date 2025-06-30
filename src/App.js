@@ -27,8 +27,6 @@ import PromoteEvent from "./components/PromoteEvent";
 import { Toaster } from "react-hot-toast";
 import MyProfile from "./components/MyProfile";
 import ForgetPassword from "./components/ForgetPassword";
-import ResetPassword from "./components/ResetPassword ";
-import EmailVerification from "./components/EmailVerification";
 
 
 function Routers() {
@@ -47,7 +45,6 @@ function Routers() {
         <Route path="/my-profile" element={<MyProfile/>} />
         <Route path="/promoteevent" element={<PromoteEvent/>} />
         <Route path="/forgot-password" element={<ForgetPassword />} />
-        <Route path="/reset-password" element={<ResetPassword />} />
         {/* <Route path="/verify-email" element={<EmailVerification />} /> */}
        {/* Admin Routes with Sidebar Layout */}
         <Route path="/admin" element={<AdminLayout />}>
@@ -64,7 +61,7 @@ function Routers() {
       <Route path="/organizer" element={<OrganizerLayout />}>
       <Route index element={<OrganizerDashboard />} /> 
   <Route path="organizer-dashboard" element={<OrganizerDashboard />} />
-  <Route path="add-event" element={<AddEventPage />} />
+  <Route path="add-event" element={<PromoteEvent />} />
   <Route path="my-events" element={<MyEvents />} />
   <Route path="performance" element={<OrganizerPerformance />} />
   <Route path="profile" element={<OrganizerProfile />} />

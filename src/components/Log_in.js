@@ -151,7 +151,7 @@ const Login = () => {
           </button>
         </form>
 
-        {/* Google Sign-In (Coming Soon) */}
+       
         <div className="flex justify-between text-sm text-white/70">
 
           <Link to="/forgot-password" className="underline text-white font-medium">
