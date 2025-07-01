@@ -32,21 +32,21 @@ import ForgetPassword from "./components/ForgetPassword";
 function Routers() {
   return (
     <>
-       <Toaster position="top-center" reverseOrder={false} />
+      <Toaster position="top-center" reverseOrder={false} />
       <Navbar />
       <Routes>
-        <Route path="/" element={<Home />} />    
-         <Route path="/home" element={<Home />} />
+        <Route path="/" element={<Home />} />
+        <Route path="/home" element={<Home />} />
         <Route path="/blog" element={<Blog />} />
         <Route path="/contact" element={<Contact />} />
         <Route path="/aboutus" element={<AboutUs />} />
-        <Route path="/login" element={<Log_in/>} />
-        <Route path="/register" element={<Register/>} />
-        <Route path="/my-profile" element={<MyProfile/>} />
-        <Route path="/promoteevent" element={<PromoteEvent/>} />
+        <Route path="/login" element={<Log_in />} />
+        <Route path="/register" element={<Register />} />
+        <Route path="/my-profile" element={<MyProfile />} />
+        <Route path="/promoteevent" element={<PromoteEvent />} />
         <Route path="/forgot-password" element={<ForgetPassword />} />
         {/* <Route path="/verify-email" element={<EmailVerification />} /> */}
-       {/* Admin Routes with Sidebar Layout */}
+        {/* Admin Routes with Sidebar Layout */}
         <Route path="/admin" element={<AdminLayout />}>
           <Route index element={<AdminDashboard />} /> {/* Default: /admin */}
           <Route path="admin-dashboard" element={<AdminDashboard />} />
@@ -58,15 +58,15 @@ function Routers() {
         </Route>
 
 
-      <Route path="/organizer" element={<OrganizerLayout />}>
-      <Route index element={<OrganizerDashboard />} /> 
-  <Route path="organizer-dashboard" element={<OrganizerDashboard />} />
-  <Route path="add-event" element={<PromoteEvent />} />
-  <Route path="my-events" element={<MyEvents />} />
-  <Route path="performance" element={<OrganizerPerformance />} />
-  <Route path="profile" element={<OrganizerProfile />} />
-  <Route path="edit-profile" element={<EditOrganizerProfile />} />
-</Route>
+        <Route path="/organizer" element={<OrganizerLayout />}>
+          <Route index element={<OrganizerDashboard />} />
+          <Route path="organizer-dashboard" element={<OrganizerDashboard />} />
+          <Route path="add-event" element={<PromoteEvent />} />
+          <Route path="my-events" element={<MyEvents />} />
+          <Route path="performance" element={<OrganizerPerformance />} />
+          <Route path="profile" element={<OrganizerProfile />} />
+          <Route path="edit-profile" element={<EditOrganizerProfile />} />
+        </Route>
 
 
       </Routes>

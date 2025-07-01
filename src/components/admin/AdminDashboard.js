@@ -128,76 +128,7 @@ export default function AdminDashboard() {
       </motion.div>
 
       {/* Charts Section */}
-      <main className="bg-white rounded-2xl shadow-lg p-10">
-        <h2 className="text-3xl font-bold text-gray-900 mb-8 select-none">
-          Insights & Analytics
-        </h2>
-        <div className="grid md:grid-cols-2 gap-10">
-          {/* Line Chart */}
-          <section className="p-6 rounded-xl shadow-lg border border-gray-200">
-            <h3 className="text-xl font-semibold mb-5 text-gray-800 select-none">
-              Events Over Time
-            </h3>
-            <ResponsiveContainer width="100%" height={320}>
-              <LineChart data={lineData} margin={{ top: 10, right: 30, bottom: 0, left: 0 }}>
-                <CartesianGrid stroke="#f0f0f0" strokeDasharray="3 3" />
-                <XAxis
-                  dataKey="name"
-                  tick={{ fill: "#6b7280", fontWeight: "600" }}
-                  axisLine={{ stroke: "#d1d5db" }}
-                />
-                <YAxis
-                  tick={{ fill: "#6b7280", fontWeight: "600" }}
-                  axisLine={{ stroke: "#d1d5db" }}
-                  allowDecimals={false}
-                />
-                <Tooltip
-                  contentStyle={{ backgroundColor: "#fafafa", borderRadius: 6, border: "none" }}
-                  itemStyle={{ color: "#4F46E5", fontWeight: "700" }}
-                />
-                <Legend verticalAlign="top" height={36} />
-                <Line
-                  type="monotone"
-                  dataKey="events"
-                  stroke="#4F46E5"
-                  strokeWidth={3}
-                  activeDot={{ r: 7 }}
-                />
-              </LineChart>
-            </ResponsiveContainer>
-          </section>
-
-          {/* Pie Chart */}
-          <section className="p-6 rounded-xl shadow-lg border border-gray-200">
-            <h3 className="text-xl font-semibold mb-5 text-gray-800 select-none">
-              Event Categories
-            </h3>
-            <ResponsiveContainer width="100%" height={320}>
-              <PieChart>
-                <Pie
-                  data={pieData}
-                  dataKey="value"
-                  nameKey="name"
-                  outerRadius={110}
-                  fill="#8884d8"
-                  label={({ name, percent }) =>
-                    `${name}: ${(percent * 100).toFixed(0)}%`
-                  }
-                  labelLine={false}
-                >
-                  {pieData.map((entry, index) => (
-                    <Cell key={`cell-${index}`} fill={COLORS[index % COLORS.length]} />
-                  ))}
-                </Pie>
-                <Tooltip
-                  contentStyle={{ backgroundColor: "#fafafa", borderRadius: 6, border: "none" }}
-                  itemStyle={{ fontWeight: "600" }}
-                />
-              </PieChart>
-            </ResponsiveContainer>
-          </section>
-        </div>
-      </main>
+     
     </div>
   );
 }
