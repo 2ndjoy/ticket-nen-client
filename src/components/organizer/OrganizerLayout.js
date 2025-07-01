@@ -1,4 +1,4 @@
-import React from "react";
+import React, { useState } from "react";
 import { Link, Outlet, useLocation } from "react-router-dom";
 import {
   LayoutDashboard,
@@ -10,6 +10,7 @@ import {
 } from "lucide-react";
 
 export default function OrganizerLayout() {
+  const [sidebarOpen, setSidebarOpen] = useState(false);
   const { pathname } = useLocation();
 
   const navLinks = [
@@ -22,9 +23,22 @@ export default function OrganizerLayout() {
   ];
 
   return (
-    <div className="flex min-h-screen">
+    <div className="flex h-screen">
+       <button
+        className="md:hidden p-4 focus:outline-none bg-black text-white"
+        onClick={() => setSidebarOpen(!sidebarOpen)}
+      >
+        ☰
+      </button>
       {/* Sidebar */}
-      <aside className="w-64 bg-black text-white p-6 space-y-4">
+       <aside
+        className={` 
+          fixed top-0 left-0 h-full w-64 bg-black text-white p-6 space-y-4
+          transform transition-transform duration-300 ease-in-out
+          ${sidebarOpen ? "translate-x-0" : "-translate-x-full"}
+          md:translate-x-0 md:static md:flex md:flex-col
+        `}
+      >
         <h1 className="text-2xl font-bold mb-6">Organizer Panel</h1>
         <nav className="flex flex-col space-y-4">
           {navLinks.map(({ to, label, icon }) => (
@@ -40,6 +54,12 @@ export default function OrganizerLayout() {
             </Link>
           ))}
         </nav>
+          <button
+        className="md:hidden p-4 focus:outline-none bg-black border-white border text-white float-right mt-6"
+        onClick={() => setSidebarOpen(!sidebarOpen)}
+      >
+         Close 
+      </button>
       </aside>
 
       {/* Main Content */}
