@@ -58,13 +58,13 @@ export default function Home() {
           <Carousel />
         </div>
       </section>
-<div className="mt-11">
+      <div className="mt-11">
 
-  <h2 className="text-3xl font-bold text-center mb-2 animate-pulse">Suggested Events</h2>
+        <h2 className="text-3xl font-bold text-center mb-2 animate-pulse">Suggested Events</h2>
 
-<SuggestedVideos/>
+        <SuggestedVideos />
 
-</div>
+      </div>
 
 
 
@@ -129,9 +129,9 @@ export default function Home() {
                 transition={{ delay: index * 0.2 }}
               >
                 <img
-                 src={"https://images.unsplash.com/photo-1517927033932-b3d18e61fb3a?ixlib=rb-1.2.1&w=1000&q=80"}
-                 
- alt="event"
+                  src={"https://images.unsplash.com/photo-1517927033932-b3d18e61fb3a?ixlib=rb-1.2.1&w=1000&q=80"}
+
+                  alt="event"
                   className="rounded-lg mb-4 w-full h-48 object-cover"
                 />
                 <h3 className="text-xl font-semibold mb-2">Event Title #{i}</h3>
