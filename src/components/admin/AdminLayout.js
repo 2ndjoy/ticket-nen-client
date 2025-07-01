@@ -3,6 +3,7 @@ import { Link, Outlet } from "react-router-dom";
 import { Home, CalendarDays, BarChart3, Ticket, PieChartIcon } from "lucide-react";
 
 export default function AdminLayout() {
+
   const [sidebarOpen, setSidebarOpen] = useState(false);
 
   return (
@@ -45,14 +46,14 @@ export default function AdminLayout() {
             <PieChartIcon size={18} /> Manage Organizers
           </Link>
         </nav>
-          <button
-        className="md:hidden p-4 focus:outline-none bg-black border-white border text-white float-right mt-6"
-        onClick={() => setSidebarOpen(!sidebarOpen)}
-      >
-         Close 
-      </button>
+        <button
+          className="md:hidden p-4 focus:outline-none bg-black border-white border text-white float-right mt-6"
+          onClick={() => setSidebarOpen(!sidebarOpen)}
+        >
+          Close
+        </button>
       </aside>
-      
+
 
       {/* Main Content */}
       <main className="flex-1 p-10 overflow-auto md:ml-64">

@@ -108,7 +108,7 @@ export default function Home() {
 
       {/* Featured Events */}
       <section className="py-16 px-6 md:px-20">
-        <h2 className="text-3xl font-bold text-center mb-10 animate-pulse">Featured Events</h2>
+        <h2 className="text-3xl font-bold text-center mb-10 animate-pulse">Upcoming Events</h2>
         <div className="grid md:grid-cols-3 gap-8">
           {[1, 2, 3].map((i, index) => (
             <Tilt

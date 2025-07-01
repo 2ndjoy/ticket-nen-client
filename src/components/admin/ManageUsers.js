@@ -3,8 +3,8 @@ import { Link } from "react-router-dom";
 import { Edit, Trash2 } from "lucide-react";
 
 const dummyUsers = [
-  { id: 1, name: "Alice Johnson", email: "alice@example.com", role: "Admin" },
-  { id: 2, name: "Bob Smith", email: "bob@example.com", role: "Editor" },
+  { id: 1, name: "Alice Johnson", email: "alice@example.com", role: "User" },
+  { id: 2, name: "Bob Smith", email: "bob@example.com", role: "User" },
   { id: 3, name: "Charlie Davis", email: "charlie@example.com", role: "User" },
   { id: 4, name: "Diana Evans", email: "diana@example.com", role: "User" },
 ];
