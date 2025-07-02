@@ -26,33 +26,11 @@ export default function Home() {
   return (
     <div className="bg-white text-gray-800 relative overflow-hidden font-light font-serif">
       {/* Animated Background Blobs */}
-      <motion.div
-        className="absolute w-72 h-72 bg-purple-400 rounded-full mix-blend-multiply filter blur-2xl opacity-40 animate-blob"
-        animate={{ x: [0, 20, -20, 0], y: [0, 30, -30, 0] }}
-        transition={{ duration: 10, repeat: Infinity }}
-        style={{ top: "-5rem", left: "-5rem", zIndex: 0 }}
-      />
+     
       {/* Carousel Section */}
       <section className="relative py-16 px-6 md:px-20 bg-gray-100 overflow-hidden">
         {/* Background blobs */}
-        <motion.div
-          className="absolute w-64 h-64 bg-purple-400 rounded-full mix-blend-multiply filter blur-3xl opacity-30 animate-blob"
-          animate={{ x: [0, 30, -30, 0], y: [0, 40, -40, 0] }}
-          transition={{ duration: 12, repeat: Infinity }}
-          style={{ top: "-6rem", left: "-6rem", zIndex: 0 }}
-        />
-        <motion.div
-          className="absolute w-64 h-64 bg-pink-400 rounded-full mix-blend-multiply filter blur-3xl opacity-30 animate-blob"
-          animate={{ x: [0, -20, 20, 0], y: [0, -30, 30, 0] }}
-          transition={{ duration: 15, repeat: Infinity, delay: 2 }}
-          style={{ bottom: "-6rem", right: "-6rem", zIndex: 0 }}
-        />
-        <motion.div
-          className="absolute w-48 h-48 bg-yellow-300 rounded-full mix-blend-multiply filter blur-3xl opacity-20 animate-blob"
-          animate={{ x: [0, 15, -15, 0], y: [0, 25, -25, 0] }}
-          transition={{ duration: 10, repeat: Infinity, delay: 4 }}
-          style={{ top: "20%", right: "20%", zIndex: 0 }}
-        />
+        
         {/* Carousel itself */}
         <div className="relative z-10">
           <Carousel />
