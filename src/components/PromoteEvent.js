@@ -92,7 +92,7 @@ export default function PromoteEvent() {
   <h2 className="text-2xl font-bold mb-2">Register as an organizer to promote your event</h2>
   <p className="mb-4">Reach more people and manage your event easily.</p>
   <button
-    onClick={() => window.location.href = "/register"} // Replace with your register route
+    onClick={() => window.location.href = "/registerorg"} // Replace with your register route
     className="bg-white text-[#128f8b] font-semibold px-6 py-2 rounded shadow hover:bg-gray-100 transition"
   >
     Register Now

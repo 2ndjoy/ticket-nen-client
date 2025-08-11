@@ -5,8 +5,10 @@ import Home from "./components/Home";
 import Blog from "./components/Blog";
 import Contact from "./components/Contact";
 import Log_in from "./components/Log_in";
+import LoginOrg from "./components/LoginOrg";
 import AboutUs from "./components/AboutUs";
 import Register from "./components/Register";
+import RegisterOrg from "./components/RegisterOrg";
 import Footer from "./components/Footer";
 import ManageEvents from "./components/admin/ManageEvents";
 import Admin from "./components/admin/Admin";
@@ -27,6 +29,10 @@ import PromoteEvent from "./components/PromoteEvent";
 import { Toaster } from "react-hot-toast";
 import MyProfile from "./components/MyProfile";
 import ForgetPassword from "./components/ForgetPassword";
+import Termsss from "./components/Termsss";
+
+// import LoginOrg from "./components/LoginOrg";
+
 
 
 function Routers() {
@@ -41,10 +47,14 @@ function Routers() {
         <Route path="/contact" element={<Contact />} />
         <Route path="/aboutus" element={<AboutUs />} />
         <Route path="/login" element={<Log_in />} />
+        <Route path="/loginOrg" element={<LoginOrg />} />
         <Route path="/register" element={<Register />} />
+        <Route path="/registerorg" element={<RegisterOrg />} />
         <Route path="/my-profile" element={<MyProfile />} />
         <Route path="/promoteevent" element={<PromoteEvent />} />
         <Route path="/forgot-password" element={<ForgetPassword />} />
+        <Route path="/terms" element={<Termsss/>} />
+        
         {/* <Route path="/verify-email" element={<EmailVerification />} /> */}
         {/* Admin Routes with Sidebar Layout */}
         <Route path="/admin" element={<AdminLayout />}>

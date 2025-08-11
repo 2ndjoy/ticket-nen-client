@@ -136,11 +136,16 @@ export default function Home() {
                 />
                 <h3 className="text-xl font-semibold mb-2">Event Title #{i}</h3>
                 <p className="text-gray-600 text-sm mb-3">Location • Date</p>
-                <Link to="/events">
+
+                <div className="text-right">
+                  <Link to="/events">
                   <button className="bg-blue-600 text-white px-4 py-2 rounded-lg hover:bg-blue-700">
                     Book Ticket
                   </button>
                 </Link>
+                  
+                </div>
+                
               </motion.div>
             </Tilt>
           ))}
