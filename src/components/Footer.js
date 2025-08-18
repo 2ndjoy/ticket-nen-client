@@ -6,14 +6,14 @@ import myLogo from '../images/AppLogo.png';
 const Footer = () => {
   return (
     <footer className="bg-[#faf6ed] border-t-4 border-black py-8">
-      <div className="container mx-auto px-6 text-center lg:text-left">
+      <div className="mx-20    mb-10">
         <div className="flex flex-col lg:flex-row justify-between">
           {/* Logo and Brand Info */}
           <div className="flex flex-col items-center lg:items-start mb-6 lg:mb-0">
             <Link to="/">
               <img src={myLogo} alt="Ticket Nen BD" className="h-[50px] mb-4" />
             </Link>
-            <p className="text-gray-700 text-sm font-light">Your one-stop ticketing solution</p>
+            <p className="text-gray-700 text-md font-light">Your one-stop ticketing solution</p>
           </div>
 
           {/* Social Media Links */}
@@ -37,7 +37,7 @@ const Footer = () => {
         </div>
 
         {/* Contact Info & Copyright */}
-        <div className="mt-8 border-t border-gray-300 pt-6 text-sm text-gray-700">
+        <div className="mt-8 border-t border-gray-300 pt-6 text-md text-gray-700">
           <div className="flex flex-col items-center lg:flex-row justify-between">
             <p className="mb-4 lg:mb-0">
               Contact us: <a href="mailto:support@ticketnenbd.com" className="text-[#128f8b]">support@ticketnenbd.com</a> | Phone: +123 456 7890

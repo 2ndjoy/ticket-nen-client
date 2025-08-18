@@ -3,10 +3,11 @@ import { motion, AnimatePresence } from 'framer-motion';
 import { useSwipeable } from 'react-swipeable';
 
 const images = [
-  'https://images.unsplash.com/photo-1504680177321-2e6a879aac86?crop=entropy&cs=tinysrgb&fit=max&fm=jpg&ixid=MnwxMjA3fDB8MXxzZWFyY2h8NHx8bXVzaWMlMjBldmVudHx8MHx8fHwxNjI1ODI5NDE4&ixlib=rb-1.2.1&q=80&w=1080',
-  'https://www.hindustantimes.com/ht-img/img/2023/03/18/1600x900/ban_vs_ire_1679159985923_1679159991742_1679159991742.jpg',
-  'https://th.bing.com/th/id/R.3c9d3afb3ce975ba50d4b25fa348ec7d?rik=d9OERmVnPNg1pA&pid=ImgRaw&r=0',
-  'https://i.ytimg.com/vi/1t2VTlKUCx4/maxresdefault.jpg',
+  'https://i.ibb.co.com/xKQyYhQD/1st.jpg',
+  'https://i.ibb.co.com/rKkQrH0P/bb.jpg',
+  'https://i.ibb.co.com/0jPZSjm2/4th.jpg',
+  'https://i.ibb.co.com/8n1TPxv6/3rd.jpg',
+  'https://i.ibb.co.com/gb3fmPgV/5th.jpg',
 ];
 
 const variants = {
@@ -34,7 +35,7 @@ const Carousel = () => {
       paginate(1);
     }, 5000);
     return () => clearInterval(interval); // Clean up on unmount
-  }, [page]);
+  }, [paginate]); // Fixed by adding 'paginate' as a dependency
 
   const imageIndex = ((page % images.length) + images.length) % images.length;
 

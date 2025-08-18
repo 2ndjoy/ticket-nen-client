@@ -43,8 +43,8 @@ const Navbar = () => {
   };
 
   return (
-    <nav className="bg-[#faf6ed] px-6 py-2 border-b-4 border-black relative">
-      <div className="flex items-center justify-between">
+    <nav className="bg-[#faf6ed] border-b-4 border-black relative mx-auto">
+      <div className="mx-20 py-1 flex items-center justify-between">
         {/* Logo */}
         <motion.div
           initial={{ opacity: 0, scale: 0.9 }}
@@ -59,11 +59,18 @@ const Navbar = () => {
 
         {/* Desktop links */}
         <ul className="hidden lg:flex space-x-6 text-md font-light font-serif mr-20">
-          {["Home", "Blog", "Contact", "Promote event", "About Us"].map((text) => (
+          {["Home", "Event", "Promote event", "Contact", "About Us"].map((text) => (
             <motion.li key={text} whileHover={navLinkHover} className="cursor-pointer">
-              <Link to={`/${text.toLowerCase().replace(/\s/g, '')}`}>{text}</Link>
+              <Link to={text === "Event" ? "/events" : `/${text.toLowerCase().replace(/\s/g, '')}`}>{text}</Link>
             </motion.li>
           ))}
+
+          {/* Profile Link */}
+          {isLoggedIn && (
+            <motion.li whileHover={navLinkHover} className="cursor-pointer">
+              <Link to="/my-profile">Profile</Link>
+            </motion.li>
+          )}
         </ul>
 
         {/* Right side: Conditional button */}
@@ -113,15 +120,24 @@ const Navbar = () => {
             variants={menuVariants}
           >
             <ul className="flex flex-col gap-4 text-md font-serif">
-              {["Home", "Blog", "Contact", "Promote event", "About Us"].map((text) => (
+              {["Home", "Event", "Contact", "Promote event", "About Us"].map((text) => (
                 <motion.li
                   key={text}
                   whileHover={{ scale: 1.05, color: "#117a76" }}
                   onClick={toggleMenu}
                 >
-                  <Link to={`/${text.toLowerCase().replace(/\s/g, '')}`}>{text}</Link>
+                  <Link to={text === "Event" ? "/events" : `/${text.toLowerCase().replace(/\s/g, '')}`}>{text}</Link>
                 </motion.li>
               ))}
+              {isLoggedIn && (
+                <motion.li whileHover={buttonHover}>
+                  <Link to="/my-profile" onClick={toggleMenu}>
+                    <button className="bg-[#128f8b] text-white font-semibold px-4 py-2 w-full mt-2">
+                      Profile
+                    </button>
+                  </Link>
+                </motion.li>
+              )}
               <motion.li whileHover={buttonHover}>
                 {isLoggedIn ? (
                   <button

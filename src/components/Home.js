@@ -32,6 +32,7 @@ export default function Home() {
         transition={{ duration: 10, repeat: Infinity }}
         style={{ top: "-5rem", left: "-5rem", zIndex: 0 }}
       />
+
       {/* Carousel Section */}
       <section className="relative py-16 px-6 md:px-20 bg-gray-100 overflow-hidden">
         {/* Background blobs */}
@@ -58,20 +59,15 @@ export default function Home() {
           <Carousel />
         </div>
       </section>
-<div className="mt-11">
 
-  <h2 className="text-3xl font-bold text-center mb-2 animate-pulse">Suggested Events</h2>
+      {/* Suggested Events */}
+      <div className="mx-20 py-16 px-0  mb-16 bg-white border border-gray-200 rounded-xl shadow-md">
+        <h2 className="text-3xl font-bold text-center mb-4 animate-pulse">Suggested Events</h2>
+        <SuggestedVideos />
+      </div>
 
-<SuggestedVideos/>
-
-</div>
-
-
-
-
-
-      {/* Categories */}
-      <section className="py-16 px-6 md:px-20 bg-gray-50">
+      {/* Popular Categories */}
+      <section className="mx-20 py-16 px-20 md:px-20 bg-white border border-gray-200 rounded-xl shadow-md mb-16 ">
         <h2 className="text-3xl font-bold text-center mb-10 animate-pulse">Popular Categories</h2>
         <div className="grid md:grid-cols-3 gap-8">
           {categories.map((cat, index) => (
@@ -92,9 +88,13 @@ export default function Home() {
                 animate={{ opacity: 1, y: 0 }}
                 transition={{ delay: index * 0.2 }}
               >
-                <img src={"https://images.unsplash.com/photo-1585699324551-f6c309eedeca?ixlib=rb-1.2.1&q=80&fm=jpg&crop=entropy&cs=tinysrgb&w=1080&fit=max&ixid=eyJhcHBfaWQiOjEyMDd9"} alt={cat.title} className="w-full h-56 object-cover" />
+                <img
+                  src={"https://images.unsplash.com/photo-1585699324551-f6c309eedeca?ixlib=rb-1.2.1&q=80&fm=jpg&crop=entropy&cs=tinysrgb&w=1080&fit=max&ixid=eyJhcHBfaWQiOjEyMDd9"}
+                  alt={cat.title}
+                  className="w-full h-56 object-cover"
+                />
                 <div className="absolute inset-0 bg-gradient-to-t from-black/60 to-transparent z-10"></div>
-                <div className="relative z-20 p-4">
+                <div className="relative z-20 p-4 ">
                   <h3 className="text-xl font-semibold text-white">{cat.title}</h3>
                   <p className="text-sm text-gray-200">
                     Find upcoming {cat.title} events near you.
@@ -107,7 +107,7 @@ export default function Home() {
       </section>
 
       {/* Featured Events */}
-      <section className="py-16 px-6 md:px-20">
+      <section className=" mx-20 py-16 px-6 md:px-20 mb-16 bg-white border border-gray-200 rounded-xl shadow-md">
         <h2 className="text-3xl font-bold text-center mb-10 animate-pulse">Featured Events</h2>
         <div className="grid md:grid-cols-3 gap-8">
           {[1, 2, 3].map((i, index) => (
@@ -120,7 +120,7 @@ export default function Home() {
               gyroscopeMaxAngleY={15}
               perspective={1000}
               scale={1.03}
-              transitionSpeed={300}
+              transitionSpeed={250}
             >
               <motion.div
                 className="bg-white border border-gray-200 rounded-xl shadow-md p-4 cursor-pointer hover:shadow-xl transition"
@@ -129,9 +129,8 @@ export default function Home() {
                 transition={{ delay: index * 0.2 }}
               >
                 <img
-                 src={"https://images.unsplash.com/photo-1517927033932-b3d18e61fb3a?ixlib=rb-1.2.1&w=1000&q=80"}
-                 
- alt="event"
+                  src={"https://images.unsplash.com/photo-1517927033932-b3d18e61fb3a?ixlib=rb-1.2.1&w=1000&q=80"}
+                  alt="event"
                   className="rounded-lg mb-4 w-full h-48 object-cover"
                 />
                 <h3 className="text-xl font-semibold mb-2">Event Title #{i}</h3>
@@ -139,22 +138,20 @@ export default function Home() {
 
                 <div className="text-right">
                   <Link to="/events">
-                  <button className="bg-blue-600 text-white px-4 py-2 rounded-lg hover:bg-blue-700">
-                    Book Ticket
-                  </button>
-                </Link>
-                  
+                    <button className="bg-blue-600 text-white px-4 py-2 rounded-lg hover:bg-blue-700">
+                      Book Ticket
+                    </button>
+                  </Link>
                 </div>
-                
               </motion.div>
             </Tilt>
           ))}
         </div>
       </section>
 
-      {/* Call to Action */}
+      {/* Don't Miss Out Section */}
       <motion.section
-        className="py-16 bg-[#128f8b] text-center"
+        className=" mx-20 py-16 px-6 md:px-20 mb-16 bg-white border border-gray-200 rounded-xl shadow-md text-center"
         initial={{ opacity: 0 }}
         whileInView={{ opacity: 1 }}
         transition={{ duration: 0.8 }}
@@ -172,6 +169,57 @@ export default function Home() {
           </motion.button>
         </Link>
       </motion.section>
+
+      {/* Our Offerings Section */}
+      <section className="mx-20 py-16 px-6 md:px-20 bg-white border border-gray-200 rounded-xl shadow-md mb-16">
+        <h2 className="text-3xl font-bold text-center mb-8 animate-pulse">Our Offerings</h2>
+        <div className="grid md:grid-cols-3 gap-8">
+          <div className="bg-white p-8 rounded-lg shadow-md text-center">
+            <img src="https://floral-mountain-2867.fly.storage.tigris.dev/static/frontend/img/icons/ticket.png" alt="Easy Ticket Purchase" className="w-16 mx-auto mb-4" />
+            <h3 className="text-xl font-semibold">Easy Ticket Purchase</h3>
+            <p className="text-gray-600 text-sm">
+              Browse, and purchase tickets for a variety of events, from concerts to conferences, all from your device with ease and convenience.
+            </p>
+          </div>
+          <div className="bg-white p-8 rounded-lg shadow-md text-center">
+            <img src="https://floral-mountain-2867.fly.storage.tigris.dev/static/frontend/img/icons/email-delivery.png" alt="Instant Ticket Delivery" className="w-16 mx-auto mb-4" />
+            <h3 className="text-xl font-semibold">Instant Ticket Delivery</h3>
+            <p className="text-gray-600 text-sm">
+              Receive your tickets immediately upon purchase via email. If preferred, users can also opt to receive their tickets on WhatsApp.
+            </p>
+          </div>
+          <div className="bg-white p-8 rounded-lg shadow-md text-center">
+            <img src="https://floral-mountain-2867.fly.storage.tigris.dev/static/frontend/img/icons/payment-method.png" alt="Multiple Payment Methods" className="w-16 mx-auto mb-4" />
+            <h3 className="text-xl font-semibold">Multiple Payment Methods</h3>
+            <p className="text-gray-600 text-sm">
+              Enjoy flexible payment options with bKash, Nagad, Upay, Visa, Mastercard, and more, ensuring secure and smooth transactions.
+            </p>
+          </div>
+        </div>
+        <div className="grid md:grid-cols-3 gap-8 mt-8">
+          <div className="bg-white p-8 rounded-lg shadow-md text-center">
+            <img src="https://floral-mountain-2867.fly.storage.tigris.dev/static/frontend/img/icons/tickipass.png" alt="Tickipass Feature" className="w-16 mx-auto mb-4" />
+            <h3 className="text-xl font-semibold">Tickipass Feature</h3>
+            <p className="text-gray-600 text-sm">
+              Access purchased tickets instantly with Tickipass, displaying QR codes from your device, eliminating the need for printed e-ticket PDFs.
+            </p>
+          </div>
+          <div className="bg-white p-8 rounded-lg shadow-md text-center">
+            <img src="https://floral-mountain-2867.fly.storage.tigris.dev/static/frontend/img/icons/dashboard.png" alt="Comprehensive Dashboard" className="w-16 mx-auto mb-4" />
+            <h3 className="text-xl font-semibold">Comprehensive Dashboard</h3>
+            <p className="text-gray-600 text-sm">
+              Access real-time sales reports and attendance data through our user-friendly dashboard, providing valuable insights at your fingertips.
+            </p>
+          </div>
+          <div className="bg-white p-8 rounded-lg shadow-md text-center">
+            <img src="https://floral-mountain-2867.fly.storage.tigris.dev/static/frontend/img/icons/scan.png" alt="Smooth Scanning" className="w-16 mx-auto mb-4" />
+            <h3 className="text-xl font-semibold">Smooth Scanning</h3>
+            <p className="text-gray-600 text-sm">
+              Streamline the entry process with our efficient ticket scanning system, ensuring a hassle-free experience for attendees and organizers.
+            </p>
+          </div>
+        </div>
+      </section>
     </div>
   );
 }

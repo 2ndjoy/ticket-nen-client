@@ -2,7 +2,6 @@ import React from "react";
 import { BrowserRouter as Router, Routes, Route } from "react-router-dom";
 import Navbar from "./components/Navbar";
 import Home from "./components/Home";
-import Blog from "./components/Blog";
 import Contact from "./components/Contact";
 import Log_in from "./components/Log_in";
 import LoginOrg from "./components/LoginOrg";
@@ -30,6 +29,11 @@ import { Toaster } from "react-hot-toast";
 import MyProfile from "./components/MyProfile";
 import ForgetPassword from "./components/ForgetPassword";
 import Termsss from "./components/Termsss";
+import Payment from "./components/Payment";
+import Eevent from "./components/Eevent";
+
+
+
 
 // import LoginOrg from "./components/LoginOrg";
 
@@ -43,7 +47,6 @@ function Routers() {
       <Routes>
         <Route path="/" element={<Home />} />
         <Route path="/home" element={<Home />} />
-        <Route path="/blog" element={<Blog />} />
         <Route path="/contact" element={<Contact />} />
         <Route path="/aboutus" element={<AboutUs />} />
         <Route path="/login" element={<Log_in />} />
@@ -54,6 +57,8 @@ function Routers() {
         <Route path="/promoteevent" element={<PromoteEvent />} />
         <Route path="/forgot-password" element={<ForgetPassword />} />
         <Route path="/terms" element={<Termsss/>} />
+        <Route path="/payment" element={<Payment />} />
+        <Route path="/events" element={<Eevent />} />
         
         {/* <Route path="/verify-email" element={<EmailVerification />} /> */}
         {/* Admin Routes with Sidebar Layout */}
@@ -65,6 +70,8 @@ function Routers() {
           <Route path="manage-organizers" element={<ManageOrganizer />} />
           <Route path="tickets-sold" element={<TicketsSold />} />
           <Route path="charts" element={<Charts />} />
+
+          
         </Route>
 
 
@@ -76,6 +83,7 @@ function Routers() {
           <Route path="performance" element={<OrganizerPerformance />} />
           <Route path="profile" element={<OrganizerProfile />} />
           <Route path="edit-profile" element={<EditOrganizerProfile />} />
+
         </Route>
 
 
