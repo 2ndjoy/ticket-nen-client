@@ -1,7 +1,7 @@
 import React, { useState, useEffect } from "react";
 import { Menu, X } from "lucide-react";
 import { Link, useNavigate } from "react-router-dom";
-import { auth } from "../firebase"; // make sure this points to your Firebase config
+import { auth } from "../firebase";
 import { onAuthStateChanged, signOut } from "firebase/auth";
 import myLogo from '../images/AppLogo2.png';
 import { motion, AnimatePresence } from "framer-motion";
@@ -15,10 +15,14 @@ const Navbar = () => {
 
   useEffect(() => {
     const unsubscribe = onAuthStateChanged(auth, (user) => {
-      setIsLoggedIn(!!user);
+      if (user) {
+        setIsLoggedIn(true);
+      } else {
+        setIsLoggedIn(false);
+      }
     });
 
-    return () => unsubscribe(); // Cleanup listener
+    return () => unsubscribe();
   }, []);
 
   const handleLogout = async () => {

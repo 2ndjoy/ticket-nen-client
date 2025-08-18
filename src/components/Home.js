@@ -26,6 +26,7 @@ export default function Home() {
   return (
     <div className="bg-white text-gray-800 relative overflow-hidden font-light font-serif">
       {/* Animated Background Blobs */}
+<<<<<<< HEAD
       <motion.div
         className="absolute w-72 h-72 bg-purple-400 rounded-full mix-blend-multiply filter blur-2xl opacity-40 animate-blob"
         animate={{ x: [0, 20, -20, 0], y: [0, 30, -30, 0] }}
@@ -33,32 +34,19 @@ export default function Home() {
         style={{ top: "-5rem", left: "-5rem", zIndex: 0 }}
       />
 
+=======
+     
+>>>>>>> 3bf773abfe431a278141cc20b4605a032a151e2b
       {/* Carousel Section */}
       <section className="relative py-16 px-6 md:px-20 bg-gray-100 overflow-hidden">
         {/* Background blobs */}
-        <motion.div
-          className="absolute w-64 h-64 bg-purple-400 rounded-full mix-blend-multiply filter blur-3xl opacity-30 animate-blob"
-          animate={{ x: [0, 30, -30, 0], y: [0, 40, -40, 0] }}
-          transition={{ duration: 12, repeat: Infinity }}
-          style={{ top: "-6rem", left: "-6rem", zIndex: 0 }}
-        />
-        <motion.div
-          className="absolute w-64 h-64 bg-pink-400 rounded-full mix-blend-multiply filter blur-3xl opacity-30 animate-blob"
-          animate={{ x: [0, -20, 20, 0], y: [0, -30, 30, 0] }}
-          transition={{ duration: 15, repeat: Infinity, delay: 2 }}
-          style={{ bottom: "-6rem", right: "-6rem", zIndex: 0 }}
-        />
-        <motion.div
-          className="absolute w-48 h-48 bg-yellow-300 rounded-full mix-blend-multiply filter blur-3xl opacity-20 animate-blob"
-          animate={{ x: [0, 15, -15, 0], y: [0, 25, -25, 0] }}
-          transition={{ duration: 10, repeat: Infinity, delay: 4 }}
-          style={{ top: "20%", right: "20%", zIndex: 0 }}
-        />
+        
         {/* Carousel itself */}
         <div className="relative z-10">
           <Carousel />
         </div>
       </section>
+<<<<<<< HEAD
 
       {/* Suggested Events */}
       <div className="mx-20 py-16 px-0  mb-16 bg-white border border-gray-200 rounded-xl shadow-md">
@@ -68,6 +56,22 @@ export default function Home() {
 
       {/* Popular Categories */}
       <section className="mx-20 py-16 px-20 md:px-20 bg-white border border-gray-200 rounded-xl shadow-md mb-16 ">
+=======
+      <div className="mt-11">
+
+        <h2 className="text-3xl font-bold text-center mb-2 animate-pulse">Suggested Events</h2>
+
+        <SuggestedVideos />
+
+      </div>
+
+
+
+
+
+      {/* Categories */}
+      <section className="py-16 px-6 md:px-20 bg-gray-50">
+>>>>>>> 3bf773abfe431a278141cc20b4605a032a151e2b
         <h2 className="text-3xl font-bold text-center mb-10 animate-pulse">Popular Categories</h2>
         <div className="grid md:grid-cols-3 gap-8">
           {categories.map((cat, index) => (
@@ -107,8 +111,13 @@ export default function Home() {
       </section>
 
       {/* Featured Events */}
+<<<<<<< HEAD
       <section className=" mx-20 py-16 px-6 md:px-20 mb-16 bg-white border border-gray-200 rounded-xl shadow-md">
         <h2 className="text-3xl font-bold text-center mb-10 animate-pulse">Featured Events</h2>
+=======
+      <section className="py-16 px-6 md:px-20">
+        <h2 className="text-3xl font-bold text-center mb-10 animate-pulse">Upcoming Events</h2>
+>>>>>>> 3bf773abfe431a278141cc20b4605a032a151e2b
         <div className="grid md:grid-cols-3 gap-8">
           {[1, 2, 3].map((i, index) => (
             <Tilt
@@ -130,6 +139,10 @@ export default function Home() {
               >
                 <img
                   src={"https://images.unsplash.com/photo-1517927033932-b3d18e61fb3a?ixlib=rb-1.2.1&w=1000&q=80"}
+<<<<<<< HEAD
+=======
+
+>>>>>>> 3bf773abfe431a278141cc20b4605a032a151e2b
                   alt="event"
                   className="rounded-lg mb-4 w-full h-48 object-cover"
                 />
