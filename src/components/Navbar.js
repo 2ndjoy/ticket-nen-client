@@ -117,7 +117,7 @@ const Navbar = () => {
       <AnimatePresence>
         {isOpen && (
           <motion.div
-            className="lg:hidden mt-4 border-t border-black pt-4"
+            className="lg:hidden m-7 mt-4 border-t border-black pt-4"
             initial="hidden"
             animate="visible"
             exit="hidden"
