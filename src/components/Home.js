@@ -150,7 +150,7 @@ export default function Home() {
         <p className="mb-6 text-lg">
           Be the first to know about trending events and special discounts.
         </p>
-        <Link to="/signup">
+        <Link to="/login">
           <motion.button
             whileHover={{ scale: 1.05 }}
             whileTap={{ scale: 0.95 }}

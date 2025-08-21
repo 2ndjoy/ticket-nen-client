@@ -31,6 +31,7 @@ import ForgetPassword from "./components/ForgetPassword";
 import Termsss from "./components/Termsss";
 import Payment from "./components/Payment";
 import Eevent from "./components/Eevent";
+import EventDetails from "./components/EventDetails";
 
 
 
@@ -59,7 +60,7 @@ function Routers() {
         <Route path="/terms" element={<Termsss/>} />
         <Route path="/payment" element={<Payment />} />
         <Route path="/events" element={<Eevent />} />
-        
+        <Route path="/events/:id" element={<EventDetails />} />
         {/* <Route path="/verify-email" element={<EmailVerification />} /> */}
         {/* Admin Routes with Sidebar Layout */}
         <Route path="/admin" element={<AdminLayout />}>
