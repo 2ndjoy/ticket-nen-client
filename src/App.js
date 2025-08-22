@@ -32,6 +32,7 @@ import Termsss from "./components/Termsss";
 import Payment from "./components/Payment";
 import Eevent from "./components/Eevent";
 import EventDetails from "./components/EventDetails";
+import MyBookings from "./components/MyBookings";
 
 
 
@@ -45,7 +46,8 @@ function Routers() {
     <>
       <Toaster position="top-center" reverseOrder={false} />
       <Navbar />
-      <Routes>
+      <Routes><Route path="/my-bookings" element={<MyBookings />} />
+
         <Route path="/" element={<Home />} />
         <Route path="/home" element={<Home />} />
         <Route path="/contact" element={<Contact />} />
@@ -58,7 +60,8 @@ function Routers() {
         <Route path="/promoteevent" element={<PromoteEvent />} />
         <Route path="/forgot-password" element={<ForgetPassword />} />
         <Route path="/terms" element={<Termsss/>} />
-        <Route path="/payment" element={<Payment />} />
+        <Route path="/payment/:id" element={<Payment />} />
+
         <Route path="/events" element={<Eevent />} />
         <Route path="/events/:id" element={<EventDetails />} />
         {/* <Route path="/verify-email" element={<EmailVerification />} /> */}

@@ -1,13 +1,15 @@
 import React, { useState, useEffect } from "react";
-import { Link } from "react-router-dom";
+import { Link, useNavigate } from "react-router-dom";
 import { motion } from "framer-motion";
 import Tilt from "react-parallax-tilt";
 import Carousel from "./Carousel";
 import SuggestedVideos from "./SuggestedVideos";
 
 export default function Home() {
-  // Detect if device is mobile based on window width (<=768px)
+  const navigate = useNavigate();
   const [isMobile, setIsMobile] = useState(window.innerWidth <= 768);
+  const [suggestedEvents, setSuggestedEvents] = useState([]);
+  const [featuredEvents, setFeaturedEvents] = useState([]);
 
   useEffect(() => {
     function handleResize() {
@@ -15,6 +17,23 @@ export default function Home() {
     }
     window.addEventListener("resize", handleResize);
     return () => window.removeEventListener("resize", handleResize);
+  }, []);
+
+  // Fetch events
+  useEffect(() => {
+    const controller = new AbortController();
+    const fetchEvents = async () => {
+      try {
+        const res = await fetch("http://localhost:5000/api/events", { signal: controller.signal });
+        const data = await res.json();
+        setSuggestedEvents(data.slice(0, 3)); // first 3 events
+        setFeaturedEvents(data.slice(0, 3));  // first 3 featured events (can customize)
+      } catch (err) {
+        console.error(err);
+      }
+    };
+    fetchEvents();
+    return () => controller.abort();
   }, []);
 
   const categories = [
@@ -25,14 +44,6 @@ export default function Home() {
 
   return (
     <div className="bg-white text-gray-800 relative overflow-hidden font-light font-serif">
-      {/* Animated Background Blobs */}
-      <motion.div
-        className="absolute w-72 h-72 bg-purple-400 rounded-full mix-blend-multiply filter blur-2xl opacity-40 animate-blob"
-        animate={{ x: [0, 20, -20, 0], y: [0, 30, -30, 0] }}
-        transition={{ duration: 10, repeat: Infinity }}
-        style={{ top: "-5rem", left: "-5rem", zIndex: 0 }}
-      />
-
       {/* Carousel Section */}
       <section className="relative py-16 px-6 md:px-20 bg-gray-100 overflow-hidden">
         <div className="relative z-10">
@@ -41,50 +52,139 @@ export default function Home() {
       </section>
 
       {/* Suggested Events */}
-      <div className="mx-20 py-16 mb-16 bg-white border border-gray-200 rounded-xl shadow-md">
-        <h2 className="text-3xl font-bold text-center mb-4 animate-pulse">
-          Suggested Events
-        </h2>
-        <SuggestedVideos />
+      <div className="max-w-6xl mx-auto px-8 py-20">
+        <div className="text-center mb-16">
+          <div className="inline-flex items-center gap-2 bg-gray-100 px-4 py-2 rounded-full text-sm text-gray-600 mb-6">
+            <span className="w-2 h-2 bg-blue-500 rounded-full animate-pulse"></span>
+            Curated Events
+          </div>
+          <h2 className="text-4xl font-light text-gray-900 mb-4">
+            Discover What's 
+            <span className="font-medium bg-gradient-to-r from-blue-600 to-purple-600 bg-clip-text text-transparent block">
+              Happening Next
+            </span>
+          </h2>
+        </div>
+
+        <div className="grid md:grid-cols-3 gap-6">
+          {suggestedEvents.map((event) => (
+            <Tilt key={event._id || event.id} className="group" tiltEnable={!isMobile}>
+              <motion.div 
+                className="relative bg-white rounded-2xl overflow-hidden border border-gray-100 hover:border-gray-200 hover:shadow-2xl hover:shadow-black/5 transition-all duration-500 cursor-pointer"
+                initial={{ opacity: 0, y: 30 }}
+                animate={{ opacity: 1, y: 0 }}
+                transition={{ delay: 0.1 }}
+              >
+                <div className="relative h-48 overflow-hidden">
+                  <img 
+                    src={event.image} 
+                    alt={event.title} 
+                    className="w-full h-full object-cover transition-transform duration-700 group-hover:scale-110" 
+                  />
+                  <div className="absolute inset-0 bg-gradient-to-t from-black/40 via-transparent to-transparent"></div>
+                  <div className="absolute top-4 right-4 bg-white/20 backdrop-blur-sm px-3 py-1 rounded-full">
+                    <span className="text-xs text-white font-medium">Featured</span>
+                  </div>
+                </div>
+                
+                <div className="p-6">
+                  <h3 className="text-xl font-semibold text-gray-900 mb-2 group-hover:text-blue-600 transition-colors duration-300">
+                    {event.title}
+                  </h3>
+                  <p className="text-sm text-gray-500 mb-3">{event.subtitle}</p>
+                  <p className="text-sm text-gray-400 mb-6 flex items-center gap-1">
+                    <span className="w-1 h-1 bg-gray-400 rounded-full"></span>
+                    {event.location} • {event.date}
+                  </p>
+                  
+                  <Link to={`/events/${event._id || event.id}`}>
+                    <button className="w-full bg-gray-50 hover:bg-gray-900 text-gray-700 hover:text-white px-4 py-3 rounded-xl transition-all duration-300 font-medium text-sm flex items-center justify-center gap-2 group/btn">
+                      <span>View Details</span>
+                      <svg className="w-4 h-4 transition-transform duration-300 group-hover/btn:translate-x-1" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                        <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M17 8l4 4m0 0l-4 4m4-4H3" />
+                      </svg>
+                    </button>
+                  </Link>
+                </div>
+              </motion.div>
+            </Tilt>
+          ))}
+        </div>
       </div>
 
       {/* Popular Categories */}
-      <section className="mx-20 py-16 px-6 md:px-20 bg-white border border-gray-200 rounded-xl shadow-md mb-16">
-        <h2 className="text-3xl font-bold text-center mb-10 animate-pulse">
-          Popular Categories
-        </h2>
+      <section className="max-w-6xl mx-auto px-8 py-20 mb-20">
+        <div className="text-center mb-16">
+          <div className="inline-flex items-center gap-2 bg-gradient-to-r from-purple-100 to-blue-100 px-4 py-2 rounded-full text-sm text-gray-700 mb-6">
+            <div className="flex gap-1">
+              <span className="w-2 h-2 bg-purple-500 rounded-full animate-bounce"></span>
+              <span className="w-2 h-2 bg-blue-500 rounded-full animate-bounce" style={{animationDelay: '0.1s'}}></span>
+              <span className="w-2 h-2 bg-pink-500 rounded-full animate-bounce" style={{animationDelay: '0.2s'}}></span>
+            </div>
+            Popular Categories
+          </div>
+          <h2 className="text-4xl font-light text-gray-900 mb-4">
+            Explore by 
+            <span className="font-medium bg-gradient-to-r from-purple-600 to-blue-600 bg-clip-text text-transparent block">
+              Your Interests
+            </span>
+          </h2>
+          <p className="text-gray-500 text-lg max-w-2xl mx-auto">
+            Discover events tailored to your passions and connect with communities that share your interests
+          </p>
+        </div>
+
         <div className="grid md:grid-cols-3 gap-8">
           {categories.map((cat, index) => (
             <Tilt
               key={cat.title}
-              className="rounded-xl shadow-lg"
-              tiltEnable={true}
+              className="group"
+              tiltEnable={!isMobile}
               gyroscope={!isMobile}
-              gyroscopeMaxAngleX={15}
-              gyroscopeMaxAngleY={15}
+              gyroscopeMaxAngleX={10}
+              gyroscopeMaxAngleY={10}
               perspective={1000}
-              scale={1.05}
-              transitionSpeed={250}
+              scale={1.02}
+              transitionSpeed={300}
             >
               <motion.div
-                className="relative rounded-xl overflow-hidden cursor-pointer hover:shadow-xl transition"
-                initial={{ opacity: 0, y: 20 }}
+                className="relative bg-white rounded-3xl overflow-hidden border border-gray-100 hover:border-gray-200 hover:shadow-2xl hover:shadow-purple-500/10 transition-all duration-500 cursor-pointer h-72"
+                initial={{ opacity: 0, y: 30 }}
                 animate={{ opacity: 1, y: 0 }}
-                transition={{ delay: index * 0.2 }}
+                transition={{ delay: index * 0.1 }}
               >
-                <img
-                  src={cat.img}
-                  alt={cat.title}
-                  className="w-full h-56 object-cover"
-                />
-                <div className="absolute inset-0 bg-gradient-to-t from-black/60 to-transparent z-10"></div>
-                <div className="relative z-20 p-4">
-                  <h3 className="text-xl font-semibold text-white">
-                    {cat.title}
-                  </h3>
-                  <p className="text-sm text-gray-200">
-                    Find upcoming {cat.title} events near you.
-                  </p>
+                <div className="relative h-48 overflow-hidden">
+                  <img
+                    src={cat.img}
+                    alt={cat.title}
+                    className="w-full h-full object-cover transition-transform duration-700 group-hover:scale-110"
+                  />
+                  <div className="absolute inset-0 bg-gradient-to-t from-black/50 via-black/20 to-transparent"></div>
+                  <div className="absolute top-4 left-4 w-8 h-8 bg-white/20 backdrop-blur-sm rounded-full flex items-center justify-center">
+                    <span className="text-white text-sm font-semibold">{index + 1}</span>
+                  </div>
+                  <div className="absolute top-4 right-4 bg-gradient-to-r from-purple-500/20 to-blue-500/20 backdrop-blur-sm px-3 py-1 rounded-full border border-white/20">
+                    <span className="text-white text-xs font-medium">Trending</span>
+                  </div>
+                </div>
+                <div className="p-6 flex flex-col justify-between h-24">
+                  <div>
+                    <h3 className="text-lg font-semibold text-gray-900 mb-2 group-hover:text-purple-600 transition-colors duration-300">
+                      {cat.title}
+                    </h3>
+                    <p className="text-sm text-gray-500 leading-relaxed">
+                      Discover amazing {cat.title.toLowerCase()} experiences near you
+                    </p>
+                  </div>
+                  <div className="flex items-center gap-2 text-gray-400 group-hover:text-purple-500 transition-colors duration-300 mt-2">
+                    <span className="text-xs font-medium">Explore</span>
+                    <svg className="w-3 h-3 transition-transform duration-300 group-hover:translate-x-1" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                      <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M17 8l4 4m0 0l-4 4m4-4H3" />
+                    </svg>
+                  </div>
+                </div>
+                <div className="absolute inset-0 rounded-3xl opacity-0 group-hover:opacity-100 transition-opacity duration-500 pointer-events-none"
+                     style={{background: 'linear-gradient(45deg, transparent, rgba(168, 85, 247, 0.1), transparent)'}}>
                 </div>
               </motion.div>
             </Tilt>
@@ -93,52 +193,95 @@ export default function Home() {
       </section>
 
       {/* Featured Events */}
-      <section className="mx-20 py-16 px-6 md:px-20 mb-16 bg-white border border-gray-200 rounded-xl shadow-md">
-        <h2 className="text-3xl font-bold text-center mb-10 animate-pulse">
-          Featured Events
-        </h2>
-        <div className="grid md:grid-cols-3 gap-8">
-          {[1, 2, 3].map((i, index) => (
-            <Tilt
-              key={i}
-              className="rounded-xl"
-              tiltEnable={true}
-              gyroscope={!isMobile}
-              gyroscopeMaxAngleX={15}
-              gyroscopeMaxAngleY={15}
-              perspective={1000}
-              scale={1.03}
-              transitionSpeed={250}
-            >
-              <motion.div
-                className="bg-white border border-gray-200 rounded-xl shadow-md p-4 cursor-pointer hover:shadow-xl transition"
-                initial={{ opacity: 0, scale: 0.9 }}
-                animate={{ opacity: 1, scale: 1 }}
-                transition={{ delay: index * 0.2 }}
-              >
-                <img
-                  src="https://images.unsplash.com/photo-1517927033932-b3d18e61fb3a?ixlib=rb-1.2.1&w=1000&q=80"
-                  alt="event"
-                  className="rounded-lg mb-4 w-full h-48 object-cover"
-                />
-                <h3 className="text-xl font-semibold mb-2">
-                  Event Title #{i}
-                </h3>
-                <p className="text-gray-600 text-sm mb-3">Location • Date</p>
-                <div className="text-right">
-                  <Link to="/events">
-                    <button className="bg-blue-600 text-white px-4 py-2 rounded-lg hover:bg-blue-700">
-                      Book Ticket
-                    </button>
-                  </Link>
-                </div>
-              </motion.div>
-            </Tilt>
-          ))}
-        </div>
-      </section>
+<section className="max-w-6xl mx-auto px-8 py-20 mb-20">
+  <div className="text-center mb-16 ">
+    <div className="inline-flex items-center gap-2 bg-gradient-to-r from-yellow-100 to-orange-100 px-4 py-2 rounded-full text-sm text-gray-700 mb-6">
+      <div className="flex gap-1">
+        <span className="w-2 h-2 bg-yellow-500 rounded-full animate-bounce"></span>
+        <span className="w-2 h-2 bg-orange-500 rounded-full animate-bounce" style={{animationDelay: '0.1s'}}></span>
+        <span className="w-2 h-2 bg-amber-500 rounded-full animate-bounce" style={{animationDelay: '0.2s'}}></span>
+      </div>
+      Featured Events
+    </div>
+    <h2 className="text-4xl font-light text-gray-900 mb-4">
+      Check Out the 
+      <span className="font-medium bg-gradient-to-r from-amber-600 to-orange-600 bg-clip-text text-transparent block">
+        Hottest Events
+      </span>
+    </h2>
+    <p className="text-gray-500 text-lg max-w-2xl mx-auto">
+      Don’t miss the top events happening near you. Explore and book your tickets today!
+    </p>
+  </div>
 
-      {/* Don't Miss Out Section */}
+  <div className="grid md:grid-cols-3 gap-8 justify-items-center">
+    {featuredEvents.slice(0, 3).map((event, index) => (
+      <Tilt
+        key={event._id || event.id}
+        className="group w-full max-w-sm"
+        tiltEnable={!isMobile}
+        gyroscope={!isMobile}
+        gyroscopeMaxAngleX={10}
+        gyroscopeMaxAngleY={10}
+        perspective={1000}
+        scale={1.02}
+        transitionSpeed={300}
+      >
+        <motion.div
+          className="relative bg-white rounded-3xl overflow-hidden border border-gray-100 hover:border-gray-200 hover:shadow-2xl hover:shadow-amber-500/10 transition-all duration-500 cursor-pointer h-72"
+          initial={{ opacity: 0, y: 30 }}
+          animate={{ opacity: 1, y: 0 }}
+          transition={{ delay: index * 0.1 }}
+        >
+          <div className="relative h-44 overflow-hidden" style={{height:"20vw"}}>
+            <img
+              src={event.image}
+              alt={event.title}
+              className="w-full h-full object-cover transition-transform duration-700 group-hover:scale-110"
+            />
+            <div className="absolute inset-0 bg-gradient-to-t from-black/50 via-black/20 to-transparent"></div>
+
+            <div className="absolute top-4 left-4 bg-gradient-to-r from-amber-500 to-orange-500 text-white px-2 py-1 rounded-full text-xs font-semibold">
+              {event.category}
+            </div>
+            <div className="absolute top-4 right-4 bg-white/90 backdrop-blur-sm px-2 py-1 rounded-full text-xs font-semibold">
+              {event.price}
+            </div>
+          </div>
+
+          <div className="p-6 flex flex-col justify-between h-28">
+            <div>
+              <h3 className="text-lg font-semibold text-gray-900 mb-2 group-hover:text-amber-600 transition-colors duration-300">
+                {event.title}
+              </h3>
+              <p className="text-sm text-gray-500 leading-relaxed line-clamp-2">{event.subtitle}</p>
+            </div>
+
+            <div className="flex items-center gap-2 text-gray-400 group-hover:text-amber-500 transition-colors duration-300 mt-3">
+              <button
+                className="text-xs font-medium bg-amber-100 hover:bg-amber-200 px-3 py-1 rounded-full transition"
+                onClick={() => navigate(`/events/${event._id || event.id}`)}
+              >
+                See Details
+              </button>
+              <svg className="w-3 h-3 transition-transform duration-300 group-hover:translate-x-1" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M17 8l4 4m0 0l-4 4m4-4H3" />
+              </svg>
+            </div>
+          </div>
+
+          <div
+            className="absolute inset-0 rounded-3xl opacity-0 group-hover:opacity-100 transition-opacity duration-500 pointer-events-none"
+            style={{ background: 'linear-gradient(45deg, transparent, rgba(251, 191, 36, 0.1), transparent)' }}
+          ></div>
+        </motion.div>
+      </Tilt>
+    ))}
+  </div>
+</section>
+
+
+           {/* Don't Miss Out Section */}
       <motion.section
         className="mx-20 py-16 px-6 md:px-20 mb-16 bg-white border border-gray-200 rounded-xl shadow-md text-center"
         initial={{ opacity: 0 }}

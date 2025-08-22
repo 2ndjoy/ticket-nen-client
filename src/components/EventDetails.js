@@ -41,11 +41,11 @@ const EventDetails = () => {
         <p><strong>Price:</strong> {event.price === "Free" ? "Free" : `Starts from ${event.price}`}</p>
       </div>
       <button
-        className="bg-[#128f8b] text-white px-6 py-3 rounded-lg font-semibold hover:bg-emerald-700 transition"
-        onClick={() => navigate(`/book/${id}`)} // or handle booking logic
-      >
-        Book Now
-      </button>
+  className="bg-[#128f8b] text-white px-6 py-3 rounded-lg font-semibold hover:bg-emerald-700 transition"
+  onClick={() => navigate(`/payment/${event._id || event.id}`)}
+>
+  Book Now
+</button>
     </div>
   );
 };
