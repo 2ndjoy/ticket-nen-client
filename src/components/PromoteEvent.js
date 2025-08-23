@@ -1,21 +1,21 @@
 import React, { useState } from "react";
+import { useNavigate } from "react-router-dom";
+import toast from "react-hot-toast";
 
 export default function PromoteEvent() {
+  const navigate = useNavigate();
   const [formData, setFormData] = useState({
     title: "",
     date: "",
     location: "",
     description: "",
     imageUrl: "",
-    videoUrl: "", // Added from other branch
-    email: "",
-    phone: "",
-    vipTickets: 0,
-    regularTickets: 0,
+    videoUrl: "",
+    contactEmail: "",
+    vipTicketQuantity: 0,
+    ticketQuantity: 0,
   });
-
-  const [reviewing, setReviewing] = useState(false);
-  const [submitted, setSubmitted] = useState(false);
+  const [isSubmitting, setIsSubmitting] = useState(false);
 
   const handleChange = (e) => {
     const { name, value } = e.target;
@@ -25,29 +25,40 @@ export default function PromoteEvent() {
     }));
   };
 
-  const handleSubmit = (e) => {
+  const handleSubmit = async (e) => {
     e.preventDefault();
+    setIsSubmitting(true);
+    const loadingToast = toast.loading("Submitting your event...");
 
-    if (
-      !formData.title ||
-      !formData.date ||
-      !formData.location ||
-      !formData.description ||
-      !formData.email ||
-      !formData.phone ||
-      formData.vipTickets <= 0 ||
-      formData.regularTickets <= 0
-    ) {
-      alert("Please fill all required fields and enter valid ticket quantities.");
-      return;
+    try {
+      // Convert ticket quantities to numbers
+      const payload = {
+        ...formData,
+        vipTicketQuantity: Number(formData.vipTicketQuantity),
+        ticketQuantity: Number(formData.ticketQuantity),
+      };
+
+      const response = await fetch("http://localhost:5000/api/promoteevents", {
+        method: "POST",
+        headers: {
+          "Content-Type": "application/json",
+        },
+        body: JSON.stringify(payload),
+      });
+
+      if (!response.ok) {
+        const errorData = await response.json();
+        throw new Error(errorData.message || "Failed to create event.");
+      }
+
+      toast.success("Event created successfully!", { id: loadingToast });
+      navigate("/organizer/my-events");
+    } catch (error) {
+      console.error("Submission error:", error);
+      toast.error(error.message || "An error occurred.", { id: loadingToast });
+    } finally {
+      setIsSubmitting(false);
     }
-
-    setReviewing(true);
-  };
-
-  const handleConfirmReview = () => {
-    setSubmitted(true);
-    window.location.href = "/payment";
   };
 
   return (
@@ -58,7 +69,7 @@ export default function PromoteEvent() {
         </h2>
         <p className="mb-4">Reach more people and manage your event easily.</p>
         <button
-          onClick={() => (window.location.href = "/registerorg")}
+          onClick={() => navigate("/register")}
           className="bg-white text-[#128f8b] font-semibold px-6 py-2 rounded shadow hover:bg-gray-100 transition"
         >
           Register Now
@@ -67,235 +78,52 @@ export default function PromoteEvent() {
 
       <h1 className="text-3xl font-bold mb-6 text-center">Promote Your Event</h1>
 
-      {!reviewing ? (
-        <form onSubmit={handleSubmit} className="space-y-5">
-          {/* Event Title */}
-          <div>
-            <label className="block mb-1 font-semibold" htmlFor="title">
-              Event Title <span className="text-red-500">*</span>
-            </label>
-            <input
-              type="text"
-              id="title"
-              name="title"
-              value={formData.title}
-              onChange={handleChange}
-              placeholder="Enter event title"
-              className="w-full border border-gray-300 rounded px-3 py-2 focus:outline-none focus:ring-2 focus:ring-blue-400"
-              required
-            />
+      <form onSubmit={handleSubmit} className="space-y-5">
+        {[
+          { label: "Event Title", name: "title", type: "text", required: true },
+          { label: "Date", name: "date", type: "date", required: true },
+          { label: "Location", name: "location", type: "text", required: true },
+          { label: "Description", name: "description", type: "textarea", required: true },
+          { label: "Image URL", name: "imageUrl", type: "url", required: true },
+          { label: "Video URL (Optional)", name: "videoUrl", type: "url" },
+          { label: "Contact Email", name: "contactEmail", type: "email", required: true },
+          { label: "VIP Ticket Quantity", name: "vipTicketQuantity", type: "number" },
+          { label: "Ticket Quantity", name: "ticketQuantity", type: "number", required: true },
+        ].map((field) => (
+          <div key={field.name}>
+            <label className="block mb-1 font-semibold">{field.label}</label>
+            {field.type === "textarea" ? (
+              <textarea
+                name={field.name}
+                value={formData[field.name]}
+                onChange={handleChange}
+                rows={4}
+                className="w-full border border-gray-300 rounded px-3 py-2"
+                required={field.required || false}
+              />
+            ) : (
+              <input
+                type={field.type}
+                name={field.name}
+                value={formData[field.name]}
+                onChange={handleChange}
+                className="w-full border border-gray-300 rounded px-3 py-2"
+                placeholder={field.label}
+                min={field.type === "number" ? 0 : undefined}
+                required={field.required || false}
+              />
+            )}
           </div>
+        ))}
 
-          {/* Date */}
-          <div>
-            <label className="block mb-1 font-semibold" htmlFor="date">
-              Date <span className="text-red-500">*</span>
-            </label>
-            <input
-              type="date"
-              id="date"
-              name="date"
-              value={formData.date}
-              onChange={handleChange}
-              className="w-full border border-gray-300 rounded px-3 py-2 focus:outline-none focus:ring-2 focus:ring-blue-400"
-              required
-            />
-          </div>
-
-          {/* Location */}
-          <div>
-            <label className="block mb-1 font-semibold" htmlFor="location">
-              Location <span className="text-red-500">*</span>
-            </label>
-            <input
-              type="text"
-              id="location"
-              name="location"
-              value={formData.location}
-              onChange={handleChange}
-              placeholder="Enter event location"
-              className="w-full border border-gray-300 rounded px-3 py-2 focus:outline-none focus:ring-2 focus:ring-blue-400"
-              required
-            />
-          </div>
-
-          {/* Description */}
-          <div>
-            <label className="block mb-1 font-semibold" htmlFor="description">
-              Description <span className="text-red-500">*</span>
-            </label>
-            <textarea
-              id="description"
-              name="description"
-              value={formData.description}
-              onChange={handleChange}
-              placeholder="Enter a brief description"
-              className="w-full border border-gray-300 rounded px-3 py-2 resize-y focus:outline-none focus:ring-2 focus:ring-blue-400"
-              rows={4}
-              required
-            />
-          </div>
-
-          {/* Image URL */}
-          <div>
-            <label className="block mb-1 font-semibold" htmlFor="imageUrl">
-              Image URL (optional)
-            </label>
-            <input
-              type="url"
-              id="imageUrl"
-              name="imageUrl"
-              value={formData.imageUrl}
-              onChange={handleChange}
-              placeholder="Enter image URL"
-              className="w-full border border-gray-300 rounded px-3 py-2 focus:outline-none focus:ring-2 focus:ring-blue-400"
-            />
-          </div>
-
-          {/* Video URL */}
-          <div>
-            <label className="block mb-1 font-semibold" htmlFor="videoUrl">
-              Video URL (optional)
-            </label>
-            <input
-              type="url"
-              id="videoUrl"
-              name="videoUrl"
-              value={formData.videoUrl}
-              onChange={handleChange}
-              placeholder="Enter video URL"
-              className="w-full border border-gray-300 rounded px-3 py-2 focus:outline-none focus:ring-2 focus:ring-blue-400"
-            />
-          </div>
-
-          {/* Email */}
-          <div>
-            <label className="block mb-1 font-semibold" htmlFor="email">
-              Contact Email <span className="text-red-500">*</span>
-            </label>
-            <input
-              type="email"
-              id="email"
-              name="email"
-              value={formData.email}
-              onChange={handleChange}
-              placeholder="Enter contact email"
-              className="w-full border border-gray-300 rounded px-3 py-2 focus:outline-none focus:ring-2 focus:ring-blue-400"
-              required
-            />
-          </div>
-
-          {/* Phone */}
-          <div>
-            <label className="block mb-1 font-semibold" htmlFor="phone">
-              Contact Phone <span className="text-red-500">*</span>
-            </label>
-            <input
-              type="tel"
-              id="phone"
-              name="phone"
-              value={formData.phone}
-              onChange={handleChange}
-              placeholder="Enter contact phone number"
-              className="w-full border border-gray-300 rounded px-3 py-2 focus:outline-none focus:ring-2 focus:ring-blue-400"
-              required
-            />
-          </div>
-
-          {/* VIP Ticket Quantity */}
-          <div>
-            <label className="block mb-1 font-semibold" htmlFor="vipTickets">
-              VIP Tickets <span className="text-red-500">*</span>
-            </label>
-            <input
-              type="number"
-              id="vipTickets"
-              name="vipTickets"
-              value={formData.vipTickets}
-              onChange={handleChange}
-              min="0"
-              className="w-full border border-gray-300 rounded px-3 py-2 focus:outline-none focus:ring-2 focus:ring-blue-400"
-              required
-            />
-          </div>
-
-          {/* Regular Ticket Quantity */}
-          <div>
-            <label className="block mb-1 font-semibold" htmlFor="regularTickets">
-              Regular Tickets <span className="text-red-500">*</span>
-            </label>
-            <input
-              type="number"
-              id="regularTickets"
-              name="regularTickets"
-              value={formData.regularTickets}
-              onChange={handleChange}
-              min="0"
-              className="w-full border border-gray-300 rounded px-3 py-2 focus:outline-none focus:ring-2 focus:ring-blue-400"
-              required
-            />
-          </div>
-
-          <button
-            type="submit"
-            className="w-full bg-[#128f8b] text-white font-semibold py-3 rounded transition"
-          >
-            Submit
-          </button>
-        </form>
-      ) : (
-        // Review Mode
-        <div className="mt-12 p-6 bg-gray-50 rounded-lg shadow-inner">
-          <h2 className="text-2xl font-bold mb-3">Please Review Your Data</h2>
-          <p>
-            <strong>Event Title:</strong> {formData.title}
-          </p>
-          <p>
-            <strong>Date:</strong>{" "}
-            {new Date(formData.date).toLocaleDateString()}
-          </p>
-          <p>
-            <strong>Location:</strong> {formData.location}
-          </p>
-          <p>
-            <strong>Description:</strong> {formData.description}
-          </p>
-          <p>
-            <strong>Email:</strong> {formData.email}
-          </p>
-          <p>
-            <strong>Phone:</strong> {formData.phone}
-          </p>
-          <p>
-            <strong>VIP Tickets:</strong> {formData.vipTickets}
-          </p>
-          <p>
-            <strong>Regular Tickets:</strong> {formData.regularTickets}
-          </p>
-          {formData.videoUrl && (
-            <p>
-              <strong>Video URL:</strong>{" "}
-              <a
-                href={formData.videoUrl}
-                target="_blank"
-                rel="noopener noreferrer"
-                className="text-blue-600 underline"
-              >
-                {formData.videoUrl}
-              </a>
-            </p>
-          )}
-
-          <div className="w-full flex justify-center mt-4">
-            <button
-              onClick={handleConfirmReview}
-              className="bg-[#128f8b] text-white font-semibold py-3 rounded transition"
-            >
-              Confirm and Proceed to Payment
-            </button>
-          </div>
-        </div>
-      )}
+        <button
+          type="submit"
+          disabled={isSubmitting}
+          className="w-full bg-[#128f8b] text-white font-semibold py-3 rounded disabled:bg-gray-400 disabled:cursor-not-allowed"
+        >
+          {isSubmitting ? "Submitting..." : "Submit Event"}
+        </button>
+      </form>
     </div>
   );
 }

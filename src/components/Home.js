@@ -54,13 +54,13 @@ export default function Home() {
       {/* Suggested Events */}
       <div className="max-w-6xl mx-auto px-8 py-20">
         <div className="text-center mb-16">
-          <div className="inline-flex items-center gap-2 bg-gray-100 px-4 py-2 rounded-full text-sm text-gray-600 mb-6">
+          <div className="inline-flex items-center gap-2 bg-green-100 px-4 py-2 rounded-full text-sm text-gray-600 mb-6">
             <span className="w-2 h-2 bg-blue-500 rounded-full animate-pulse"></span>
             Curated Events
           </div>
           <h2 className="text-4xl font-light text-gray-900 mb-4">
             Discover What's 
-            <span className="font-medium bg-gradient-to-r from-blue-600 to-purple-600 bg-clip-text text-transparent block">
+            <span className="font-medium bg-[#0b7253] bg-clip-text text-transparent block">
               Happening Next
             </span>
           </h2>
@@ -115,7 +115,7 @@ export default function Home() {
       {/* Popular Categories */}
       <section className="max-w-6xl mx-auto px-8 py-20 mb-20">
         <div className="text-center mb-16">
-          <div className="inline-flex items-center gap-2 bg-gradient-to-r from-purple-100 to-blue-100 px-4 py-2 rounded-full text-sm text-gray-700 mb-6">
+          <div className="inline-flex items-center gap-2 bg-gradient-to-r from-green-100 to-green-100 px-4 py-2 rounded-full text-sm text-gray-700 mb-6">
             <div className="flex gap-1">
               <span className="w-2 h-2 bg-purple-500 rounded-full animate-bounce"></span>
               <span className="w-2 h-2 bg-blue-500 rounded-full animate-bounce" style={{animationDelay: '0.1s'}}></span>
@@ -125,7 +125,7 @@ export default function Home() {
           </div>
           <h2 className="text-4xl font-light text-gray-900 mb-4">
             Explore by 
-            <span className="font-medium bg-gradient-to-r from-purple-600 to-blue-600 bg-clip-text text-transparent block">
+            <span className="font-medium bg-gradient-to-r from-green-600 to-yellow-600 bg-clip-text text-transparent block">
               Your Interests
             </span>
           </h2>
@@ -148,7 +148,7 @@ export default function Home() {
               transitionSpeed={300}
             >
               <motion.div
-                className="relative bg-white rounded-3xl overflow-hidden border border-gray-100 hover:border-gray-200 hover:shadow-2xl hover:shadow-purple-500/10 transition-all duration-500 cursor-pointer h-72"
+                className="relative bg-white rounded-3xl overflow-hidden border border-gray-100 hover:border-gray-200 hover:shadow-2xl hover:shadow-green-500/10 transition-all duration-500 cursor-pointer h-72"
                 initial={{ opacity: 0, y: 30 }}
                 animate={{ opacity: 1, y: 0 }}
                 transition={{ delay: index * 0.1 }}
@@ -163,13 +163,13 @@ export default function Home() {
                   <div className="absolute top-4 left-4 w-8 h-8 bg-white/20 backdrop-blur-sm rounded-full flex items-center justify-center">
                     <span className="text-white text-sm font-semibold">{index + 1}</span>
                   </div>
-                  <div className="absolute top-4 right-4 bg-gradient-to-r from-purple-500/20 to-blue-500/20 backdrop-blur-sm px-3 py-1 rounded-full border border-white/20">
-                    <span className="text-white text-xs font-medium">Trending</span>
+                  <div className="absolute top-4 right-4  bg-white/20 backdrop-blur-sm px-3 py-1 rounded-full border border-white/20 text-black">
+                    <span className=" text-xs font-medium">Trending</span>
                   </div>
                 </div>
                 <div className="p-6 flex flex-col justify-between h-24">
                   <div>
-                    <h3 className="text-lg font-semibold text-gray-900 mb-2 group-hover:text-purple-600 transition-colors duration-300">
+                    <h3 className="text-lg font-semibold text-gray-900 mb-2 group-hover:text-green-600 transition-colors duration-300">
                       {cat.title}
                     </h3>
                     <p className="text-sm text-gray-500 leading-relaxed">
@@ -193,28 +193,32 @@ export default function Home() {
       </section>
 
       {/* Featured Events */}
-<section className="max-w-6xl mx-auto px-8 py-20 mb-20">
-  <div className="text-center mb-16 ">
-    <div className="inline-flex items-center gap-2 bg-gradient-to-r from-yellow-100 to-orange-100 px-4 py-2 rounded-full text-sm text-gray-700 mb-6">
+<section className="max-w-7xl mx-auto px-6 md:px-8 py-24">
+  {/* Header */}
+  <div className="text-center mb-20">
+    <div className="inline-flex items-center gap-3 bg-gradient-to-r from-yellow-100 to-green-100 px-5 py-2 rounded-full text-sm font-semibold text-gray-700 mb-6">
       <div className="flex gap-1">
         <span className="w-2 h-2 bg-yellow-500 rounded-full animate-bounce"></span>
-        <span className="w-2 h-2 bg-orange-500 rounded-full animate-bounce" style={{animationDelay: '0.1s'}}></span>
-        <span className="w-2 h-2 bg-amber-500 rounded-full animate-bounce" style={{animationDelay: '0.2s'}}></span>
+        <span className="w-2 h-2 bg-orange-500 rounded-full animate-bounce" style={{ animationDelay: '0.1s' }}></span>
+        <span className="w-2 h-2 bg-amber-500 rounded-full animate-bounce" style={{ animationDelay: '0.2s' }}></span>
       </div>
       Featured Events
     </div>
-    <h2 className="text-4xl font-light text-gray-900 mb-4">
-      Check Out the 
-      <span className="font-medium bg-gradient-to-r from-amber-600 to-orange-600 bg-clip-text text-transparent block">
+
+    <h2 className="text-4xl md:text-5xl font-light text-gray-900 mb-4">
+      Discover the{' '}
+      <span className="font-medium bg-gradient-to-r from-green-800 to-green-600 bg-clip-text text-transparent">
         Hottest Events
       </span>
     </h2>
-    <p className="text-gray-500 text-lg max-w-2xl mx-auto">
-      Don’t miss the top events happening near you. Explore and book your tickets today!
+
+    <p className="text-gray-500 text-lg md:text-xl max-w-3xl mx-auto">
+      Explore the top events happening near you. Book your tickets effortlessly and experience the best moments.
     </p>
   </div>
 
-  <div className="grid md:grid-cols-3 gap-8 justify-items-center">
+  {/* Event Grid */}
+  <div className="grid md:grid-cols-3 gap-10 justify-items-center">
     {featuredEvents.slice(0, 3).map((event, index) => (
       <Tilt
         key={event._id || event.id}
@@ -224,61 +228,71 @@ export default function Home() {
         gyroscopeMaxAngleX={10}
         gyroscopeMaxAngleY={10}
         perspective={1000}
-        scale={1.02}
-        transitionSpeed={300}
+        scale={1.04}
+        transitionSpeed={400}
       >
         <motion.div
-          className="relative bg-white rounded-3xl overflow-hidden border border-gray-100 hover:border-gray-200 hover:shadow-2xl hover:shadow-amber-500/10 transition-all duration-500 cursor-pointer h-72"
-          initial={{ opacity: 0, y: 30 }}
+          className="relative bg-white rounded-3xl overflow-hidden border border-gray-100 hover:border-amber-400 hover:shadow-2xl hover:shadow-amber-400/20 transition-all duration-500 cursor-pointer h-auto"
+          initial={{ opacity: 0, y: 40 }}
           animate={{ opacity: 1, y: 0 }}
           transition={{ delay: index * 0.1 }}
         >
-          <div className="relative h-44 overflow-hidden" style={{height:"20vw"}}>
+          {/* Image */}
+          <div className="relative h-52 md:h-60 overflow-hidden">
             <img
               src={event.image}
               alt={event.title}
               className="w-full h-full object-cover transition-transform duration-700 group-hover:scale-110"
             />
-            <div className="absolute inset-0 bg-gradient-to-t from-black/50 via-black/20 to-transparent"></div>
+            <div className="absolute inset-0 bg-gradient-to-t from-black/40 via-black/10 to-transparent"></div>
 
-            <div className="absolute top-4 left-4 bg-gradient-to-r from-amber-500 to-orange-500 text-white px-2 py-1 rounded-full text-xs font-semibold">
+            <span className="absolute top-4 left-4  bg-white/20 backdrop-blur-sm text-white px-3 py-1 rounded-full text-xs font-semibold shadow-md">
               {event.category}
-            </div>
-            <div className="absolute top-4 right-4 bg-white/90 backdrop-blur-sm px-2 py-1 rounded-full text-xs font-semibold">
+            </span>
+
+            <span className="absolute top-4 right-4 bg-white/95 backdrop-blur-sm px-3 py-1 rounded-full text-xs font-semibold shadow-sm">
               {event.price}
-            </div>
+            </span>
           </div>
 
-          <div className="p-6 flex flex-col justify-between h-28">
+          {/* Content */}
+          <div className="p-6 flex flex-col justify-between min-h-[180px]">
             <div>
-              <h3 className="text-lg font-semibold text-gray-900 mb-2 group-hover:text-amber-600 transition-colors duration-300">
+              <h3 className="text-lg md:text-xl font-semibold text-gray-900 mb-2 group-hover:text-amber-600 transition-colors duration-300">
                 {event.title}
               </h3>
-              <p className="text-sm text-gray-500 leading-relaxed line-clamp-2">{event.subtitle}</p>
+              <p className="text-sm md:text-base text-gray-500 leading-relaxed line-clamp-2">{event.subtitle}</p>
             </div>
 
-            <div className="flex items-center gap-2 text-gray-400 group-hover:text-amber-500 transition-colors duration-300 mt-3">
+            <div className="flex items-center gap-3 mt-4">
               <button
-                className="text-xs font-medium bg-amber-100 hover:bg-amber-200 px-3 py-1 rounded-full transition"
+                className="text-xs md:text-sm font-medium bg-amber-100 hover:bg-amber-200 px-4 py-2 rounded-full transition shadow-sm"
                 onClick={() => navigate(`/events/${event._id || event.id}`)}
               >
                 See Details
               </button>
-              <svg className="w-3 h-3 transition-transform duration-300 group-hover:translate-x-1" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+              <svg
+                className="w-4 h-4 md:w-5 md:h-5 text-gray-400 group-hover:text-amber-500 transition-transform duration-300 group-hover:translate-x-1"
+                fill="none"
+                stroke="currentColor"
+                viewBox="0 0 24 24"
+              >
                 <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M17 8l4 4m0 0l-4 4m4-4H3" />
               </svg>
             </div>
           </div>
 
+          {/* Gradient overlay on hover */}
           <div
             className="absolute inset-0 rounded-3xl opacity-0 group-hover:opacity-100 transition-opacity duration-500 pointer-events-none"
-            style={{ background: 'linear-gradient(45deg, transparent, rgba(251, 191, 36, 0.1), transparent)' }}
+            style={{ background: 'linear-gradient(135deg, transparent, rgba(251, 191, 36, 0.08), transparent)' }}
           ></div>
         </motion.div>
       </Tilt>
     ))}
   </div>
 </section>
+
 
 
            {/* Don't Miss Out Section */}
