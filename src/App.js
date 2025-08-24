@@ -33,6 +33,7 @@ import Payment from "./components/Payment";
 import Eevent from "./components/Eevent";
 import EventDetails from "./components/EventDetails";
 import MyBookings from "./components/MyBookings";
+import OrganizerPayment from "./components/organizer/OrganizerPayment";
 
 
 
@@ -61,7 +62,8 @@ function Routers() {
         <Route path="/forgot-password" element={<ForgetPassword />} />
         <Route path="/terms" element={<Termsss/>} />
         <Route path="/payment/:id" element={<Payment />} />
-
+        <Route path="/organizer/payment" element={<OrganizerPayment />} />
+      
         <Route path="/events" element={<Eevent />} />
         <Route path="/events/:id" element={<EventDetails />} />
         {/* <Route path="/verify-email" element={<EmailVerification />} /> */}
