@@ -52,8 +52,8 @@ export default function PromoteEvent() {
 
   return (
     <div className="max-w-3xl mx-auto p-6 bg-white rounded-lg shadow-md mt-10 font-light font-serif">
-    
-    <div className="bg-gradient-to-r from-[#128f8b] to-[#0e6b69] text-white p-6 rounded-lg shadow-md mb-10 text-center">
+
+      <div className="bg-gradient-to-r from-[#128f8b] to-[#0e6b69] text-white p-6 rounded-lg shadow-md mb-10 text-center">
         <h2 className="text-2xl font-bold mb-2">
           Register as an organizer to promote your event
         </h2>
@@ -178,6 +178,42 @@ export default function PromoteEvent() {
               required
             />
           </div>
+
+          <div>
+            <label className="block mb-1">Category *</label>
+            <select
+              name="category"
+              value={formData.category}
+              onChange={handleChange}
+              className="w-full border rounded px-3 py-2"
+              required
+            >
+              <option value="">-- Select Category --</option>
+              <option value="Conferences">Conferences</option>
+              <option value="Competitions">Competitions</option>
+              <option value="Festivals">Festivals</option>
+              <option value="Concerts">Concerts</option>
+              <option value="Workshops">Workshops</option>
+              <option value="Sports">Sports</option>
+              <option value="Theater">Theater</option>
+              <option value="Other">Other</option>
+            </select>
+          </div>
+
+
+          <div>
+            <label className="block mb-1">Price *</label>
+            <input
+              type="text"
+              name="price"
+              value={formData.price}
+              onChange={handleChange}
+              className="w-full border rounded px-3 py-2"
+              required
+              placeholder="Free or amount (e.g., 200)"
+            />
+          </div>
+
 
           <button
             type="submit"
