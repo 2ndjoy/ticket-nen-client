@@ -1,6 +1,7 @@
 import React, { useState, useEffect, useRef } from "react";
 import { useParams, useNavigate } from "react-router-dom";
 import { auth } from "../firebase";
+import { Calendar, Clock, MapPin, Star, Users } from 'lucide-react';
 import { QRCodeCanvas } from "qrcode.react";
 import html2canvas from "html2canvas";
 
@@ -15,6 +16,7 @@ export default function Payment() {
   const [user, setUser] = useState(null);
   const [ticketId, setTicketId] = useState(null);
   const ticketRef = useRef(null);
+  const [suggestedEvents, setSuggestedEvents] = useState([]);
 
   // Generate unique ticket ID
   const generateTicketId = () => {
@@ -50,6 +52,26 @@ export default function Payment() {
     };
     fetchEvent();
   }, [id]);
+
+  // Fetch suggested events
+  useEffect(() => {
+    const fetchSuggestedEvents = async () => {
+      if (!event) return; // Wait until the main event is fetched
+
+      try {
+        const res = await fetch('http://localhost:5000/api/events');
+        if (res.ok) {
+          const data = await res.json();
+          // Filter events by the same category, excluding the current event
+          const filtered = data.filter(e => e.category === event.category && e._id !== id).slice(0, 5);
+          setSuggestedEvents(filtered);
+        }
+      } catch (err) {
+        console.error("Failed to fetch suggested events:", err);
+      }
+    };
+    fetchSuggestedEvents();
+  }, [event, id]);
 
   const handlePayment = async () => {
     if (!user) {
@@ -324,6 +346,56 @@ export default function Payment() {
           </div>
         )}
       </div>
+
+      {/* Suggested Events Section */}
+      {suggestedEvents.length > 0 && (
+        <div className="mt-16">
+          <h2 className="text-2xl font-bold text-center mb-6 text-gray-800">You Might Also Like</h2>
+          <div className="flex overflow-x-auto space-x-6 pb-4">
+            {suggestedEvents.map((sEvent) => (
+              <div key={sEvent._id} className="flex-shrink-0 w-80 bg-white rounded-2xl shadow-lg overflow-hidden hover:shadow-xl transition-all duration-300 hover:scale-105">
+                <div className="relative h-40 overflow-hidden">
+                  <img src={sEvent.image} alt={sEvent.title} className="w-full h-full object-cover" />
+                  <div className="absolute top-3 left-3 bg-black bg-opacity-70 text-white px-3 py-1 rounded-full text-xs font-medium">
+                    {sEvent.category}
+                  </div>
+                </div>
+
+                <div className="p-4">
+                  <h3 className="font-bold text-md text-gray-800 mb-1 line-clamp-2">{sEvent.title}</h3>
+                  <p className="text-gray-600 text-xs mb-3 line-clamp-2">{sEvent.subtitle}</p>
+
+                  <div className="space-y-1 mb-3">
+                    <div className="flex items-center gap-2 text-gray-600 text-xs">
+                      <Calendar className="w-3 h-3" /><span>{sEvent.date}</span>
+                      <Clock className="w-3 h-3 ml-1" /><span>{sEvent.time}</span>
+                    </div>
+                    <div className="flex items-center gap-2 text-gray-600 text-xs">
+                      <MapPin className="w-3 h-3" /><span>{sEvent.location}</span>
+                    </div>
+                    <div className="flex items-center gap-3 text-xs">
+                      <div className="flex items-center gap-1"><Users className="w-3 h-3 text-gray-500" /><span className="text-gray-600">{sEvent.attendees}</span></div>
+                      <div className="flex items-center gap-1"><Star className="w-3 h-3 text-yellow-500 fill-current" /><span className="text-gray-600">{sEvent.rating}</span></div>
+                    </div>
+                  </div>
+
+                  <div className="flex items-center justify-between">
+                    <div className="text-[#0b7253] font-bold text-md">
+                      {sEvent.price === "Free" ? "Free" : `Starts from ${sEvent.price}`}
+                    </div>
+                    <button
+                      className="bg-[#0b7253] text-white font-semibold text-xs px-3 py-2 rounded-md"
+                      onClick={() => navigate(`/events/${sEvent._id}`)}
+                    >
+                      See Details
+                    </button>
+                  </div>
+                </div>
+              </div>
+            ))}
+          </div>
+        </div>
+      )}
     </div>
   );
 }

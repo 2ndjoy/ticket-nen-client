@@ -40,7 +40,7 @@ const Carousel = () => {
   const imageIndex = ((page % images.length) + images.length) % images.length;
 
   return (
-    <div className="relative w-full max-w-4xl mx-auto overflow-hidden rounded-xl" {...handlers}>
+    <div className="relative w-full max-w-4xl mx-auto overflow-hidden rounded-xl " {...handlers}>
       <div className="relative h-64 sm:h-96">
         <AnimatePresence initial={false} custom={direction}>
           <motion.img

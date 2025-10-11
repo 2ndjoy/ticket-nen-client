@@ -43,6 +43,8 @@ export default function Home() {
   ];
 
   return (
+
+    
     <div className="bg-white text-gray-800 relative overflow-hidden font-light font-serif">
       {/* Carousel Section */}
       <section className="relative py-16 px-6 md:px-20 bg-gray-100 overflow-hidden">

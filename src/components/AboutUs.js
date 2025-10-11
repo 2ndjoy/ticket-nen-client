@@ -1,6 +1,7 @@
 import React from "react";
 import { motion } from "framer-motion";
 import { Shield, Clock, Award, Users, Heart, Star } from "lucide-react";
+import { Link } from "react-router-dom";
 
 export default function About() {
   const features = [
@@ -237,10 +238,12 @@ export default function About() {
               Join millions of happy customers and discover amazing events near you
             </p>
 
-            <button className="bg-[#000000] hover:bg-[#128f8b] text-white font-semibold px-8 py-4 rounded-lg transition-colors duration-200 text-lg">
+            <Link
+              to="/events"
+              className="inline-block bg-[#000000] hover:bg-[#128f8b] text-white font-semibold px-8 py-4 rounded-lg transition-colors duration-200 text-lg"
+            >
               Browse Events
- 
-            </button>
+            </Link>
           </motion.div>
         </div>
       </section>

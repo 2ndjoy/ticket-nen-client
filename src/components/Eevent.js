@@ -1,3 +1,4 @@
+// Eevent.jsx
 import React, { useState, useEffect } from 'react';
 import { Calendar, Clock, MapPin, Search, Filter, Star, Users, X, ChevronDown } from 'lucide-react';
 import { auth } from "../firebase";
@@ -112,7 +113,7 @@ const navigate = useNavigate();
           </div>
 
           <div className="mb-6">
-            <h4 className="font-semibold text-gray-700 mb-3">Location</h4>
+            <h4 className="font-semibold text-gray-700 mb-3">Locations</h4>
             <div className="space-y-2 max-h-48 overflow-y-auto">
               {locations.map((location) => (
                 <label key={location} className="flex items-center space-x-3">
@@ -236,7 +237,7 @@ const navigate = useNavigate();
                   </div>
 
                   <div className="flex items-center justify-between">
-                    <div className="text-[#128f8b] font-bold text-lg">{event.price === "Free" ? "Free" : `Starts from ${event.price}`}</div>
+                    <div className="text-[#128f8b] font-bold text-lg">{event.price === "Free" ? "Free" : `Starts from ${event.regularPrice}/-`}</div>
                   <button 
   className="bg-[#128f8b] text-white font-semibold text-sm p-3 rounded" 
   onClick={() => navigate(`/events/${event._id || event.id}`)}

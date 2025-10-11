@@ -14,6 +14,10 @@ const MyProfile = () => {
   const [selectedBooking, setSelectedBooking] = useState(null); // For ticket download
   const ticketRef = useRef(null);
 
+  // NEW: organizer state
+  const [isOrganizer, setIsOrganizer] = useState(false);
+  const [checkingOrganizer, setCheckingOrganizer] = useState(true);
+
   // Fetch profile
   useEffect(() => {
     const unsubscribe = onAuthStateChanged(auth, async (user) => {
@@ -43,6 +47,46 @@ const MyProfile = () => {
 
     return () => unsubscribe();
   }, []);
+
+  // NEW: check if user is an organizer (query backend by email)
+  useEffect(() => {
+    if (!profile?.email) return;
+
+    const checkOrganizer = async () => {
+      try {
+        const token = await auth.currentUser.getIdToken();
+        const res = await fetch(
+          `http://localhost:5000/api/organizers?email=${encodeURIComponent(profile.email)}`,
+          { headers: { Authorization: `Bearer ${token}` } }
+        );
+
+        if (res.ok) {
+          // Found organizer document
+          const data = await res.json();
+          const flag =
+            !!data?.role?.toLowerCase?.() === "organizer" ||
+            data?.role === "organizer" ||
+            !!data?._id;
+          setIsOrganizer(!!flag);
+        } else if (res.status === 404) {
+          // Not an organizer
+          setIsOrganizer(false);
+        } else {
+          // Unexpected response -> soft fallback to localStorage list
+          const list = JSON.parse(localStorage.getItem("organizerEmails") || "[]");
+          setIsOrganizer(Array.isArray(list) && list.includes(profile.email));
+        }
+      } catch {
+        // Network/other error -> fallback to localStorage
+        const list = JSON.parse(localStorage.getItem("organizerEmails") || "[]");
+        setIsOrganizer(Array.isArray(list) && list.includes(profile.email));
+      } finally {
+        setCheckingOrganizer(false);
+      }
+    };
+
+    checkOrganizer();
+  }, [profile]);
 
   // Fetch user bookings
   useEffect(() => {
@@ -132,12 +176,27 @@ const MyProfile = () => {
               day: "numeric",
             })}
           </p>
+          {/* NEW: role hint */}
+          {!checkingOrganizer && (
+            <p className="text-xs mt-1">
+              Role:{" "}
+              <span className={`font-semibold ${isOrganizer ? "text-emerald-600" : "text-gray-600"}`}>
+                {isOrganizer ? "Organizer" : "Regular User"}
+              </span>
+            </p>
+          )}
         </div>
 
         {/* Buttons */}
         <div className="flex gap-4 mt-4">
           <button onClick={handleEditProfile} className="bg-[#837f0d] text-white px-4 py-2 rounded-md">Edit Profile</button>
           <Link to="/my-bookings" className="bg-[#0b7253] text-white px-4 py-2 rounded-md">My Bookings</Link>
+          {/* NEW: Organizer Dashboard button (visible only if organizer) */}
+          {isOrganizer && (
+            <Link to="/organizer/organizer-dashboard" className="bg-[#0b5772] text-white px-4 py-2 rounded-md">
+              Organizer Dashboard
+            </Link>
+          )}
         </div>
       </div>
 
@@ -170,7 +229,7 @@ const MyProfile = () => {
                   <p className="text-sm text-gray-600">{new Date(booking.eventId?.date).toLocaleDateString()}</p>
                 </div>
                 <Link to="/my-bookings" className="bg-[#0b5772] text-white px-4 py-2 rounded-md">See all bookings</Link>
-        </div>
+              </div>
             ))
           )}
         </div>
