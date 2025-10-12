@@ -4,6 +4,8 @@ import { auth } from "../firebase";
 const API_BASE =
   process.env.REACT_APP_API_BASE?.replace(/\/$/, "") || "http://localhost:5000";
 
+const IMGBB_API_KEY = process.env.REACT_APP_IMGBB_API_KEY; // <-- set this in your .env
+
 export default function PromoteEvent() {
   const [formData, setFormData] = useState({
     title: "",
@@ -17,8 +19,8 @@ export default function PromoteEvent() {
     location: "",
     status: "",
     description: "",
-    image: "",
-    imageUrl: "",
+    image: "", // will be auto-filled after upload
+    imageUrl: "", // optional second image
     videoUrl: "",
     email: "",
     phone: "",
@@ -36,6 +38,11 @@ export default function PromoteEvent() {
 
   // ui state
   const [reviewing, setReviewing] = useState(false);
+
+  // upload state
+  const [uploadingMain, setUploadingMain] = useState(false);
+  const [uploadingExtra, setUploadingExtra] = useState(false);
+  const [uploadError, setUploadError] = useState("");
 
   // derived flags
   const canEditAndSubmit = useMemo(
@@ -115,6 +122,90 @@ export default function PromoteEvent() {
     setFormData((prev) => ({ ...prev, [name]: value }));
   };
 
+  // ---- ImgBB upload helpers ----
+  const toBase64 = (file) =>
+    new Promise((resolve, reject) => {
+      const reader = new FileReader();
+      reader.onload = () => resolve(reader.result);
+      reader.onerror = reject;
+      reader.readAsDataURL(file);
+    });
+
+  async function uploadImageToImgBB(file) {
+    if (!IMGBB_API_KEY) {
+      throw new Error(
+        "Missing REACT_APP_IMGBB_API_KEY. Add it to your .env and restart the dev server."
+      );
+    }
+
+    if (!file) throw new Error("No file selected");
+
+    // basic validation (adjust as needed)
+    const allowed = ["image/png", "image/jpeg", "image/jpg", "image/webp"];
+    if (!allowed.includes(file.type)) {
+      throw new Error("Unsupported file type. Please upload PNG, JPG, or WEBP.");
+    }
+    const maxMB = 10;
+    if (file.size > maxMB * 1024 * 1024) {
+      throw new Error(`File too large. Max ${maxMB}MB.`);
+    }
+
+    const dataUrl = await toBase64(file);
+    const base64 = String(dataUrl).split(",")[1]; // remove data:...;base64, prefix
+
+    const body = new FormData();
+    body.append("image", base64);
+
+    const res = await fetch(`https://api.imgbb.com/1/upload?key=${IMGBB_API_KEY}`, {
+      method: "POST",
+      body,
+    });
+
+    const payload = await res.json();
+    if (!res.ok || !payload?.success) {
+      const msg = payload?.error?.message || `Upload failed (${res.status}).`;
+      throw new Error(msg);
+    }
+
+    // ImgBB response shape: payload.data.url, payload.data.display_url, payload.data.delete_url
+    return {
+      url: payload.data.url,
+      displayUrl: payload.data.display_url,
+      thumbUrl: payload.data?.thumb?.url,
+      deleteUrl: payload.data.delete_url,
+    };
+  }
+
+  const handleMainFile = async (e) => {
+    const file = e.target.files?.[0];
+    if (!file) return;
+    setUploadError("");
+    setUploadingMain(true);
+    try {
+      const { url } = await uploadImageToImgBB(file);
+      setFormData((prev) => ({ ...prev, image: url }));
+    } catch (err) {
+      setUploadError(err.message || "Upload failed");
+    } finally {
+      setUploadingMain(false);
+    }
+  };
+
+  const handleExtraFile = async (e) => {
+    const file = e.target.files?.[0];
+    if (!file) return;
+    setUploadError("");
+    setUploadingExtra(true);
+    try {
+      const { url } = await uploadImageToImgBB(file);
+      setFormData((prev) => ({ ...prev, imageUrl: url }));
+    } catch (err) {
+      setUploadError(err.message || "Upload failed");
+    } finally {
+      setUploadingExtra(false);
+    }
+  };
+
   const handleSubmit = (e) => {
     e.preventDefault();
 
@@ -149,11 +240,16 @@ export default function PromoteEvent() {
       !formData.regularPrice ||
       !formData.category ||
       !formData.status ||
-      !formData.image
+      !formData.image // now must be set by the upload
     ) {
-      alert("Please fill all required fields.");
+      alert("Please fill all required fields (make sure to upload the image).");
       return;
     }
+
+    // At this point, formData.image and formData.imageUrl are public URLs from ImgBB.
+    // You can post formData to your backend to persist to MongoDB.
+    // Example (uncomment if you want to save before the payment step):
+    // fetch(`${API_BASE}/api/events`, { method: 'POST', headers: { 'Content-Type': 'application/json' }, body: JSON.stringify(formData) });
 
     setReviewing(true);
   };
@@ -362,6 +458,7 @@ export default function PromoteEvent() {
                     <option value="Workshop">Workshop</option>
                     <option value="Meetup">Meetup</option>
                     <option value="Festival">Festival</option>
+                    <option value="Sports">Sports</option>
                     <option value="Other">Other</option>
                   </select>
                 </div>
@@ -415,33 +512,79 @@ export default function PromoteEvent() {
               </div>
             </div>
 
-            {/* Media */}
+            {/* Media (with upload to ImgBB) */}
             <div className="rounded-2xl border bg-white/80 backdrop-blur-sm shadow-sm p-5">
               <h3 className="text-lg font-semibold mb-4">Media</h3>
               <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
+                {/* Main Image */}
                 <div>
-                  <label className="block mb-1 text-sm text-gray-700">Main Image URL *</label>
+                  <label className="block mb-1 text-sm text-gray-700">Main Image *</label>
                   <input
-                    type="url"
-                    name="image"
-                    value={formData.image}
-                    onChange={handleChange}
-                    className="w-full border rounded-lg px-3 py-2 focus:outline-none focus:ring-2 focus:ring-emerald-500"
-                    required
-                    disabled={!canEditAndSubmit}
+                    type="file"
+                    accept="image/png, image/jpeg, image/jpg, image/webp"
+                    onChange={handleMainFile}
+                    className="w-full border rounded-lg px-3 py-2 bg-white focus:outline-none focus:ring-2 focus:ring-emerald-500"
+                    required={!formData.image}
+                    disabled={!canEditAndSubmit || uploadingMain}
                   />
+                  <div className="mt-2 text-xs text-gray-600">PNG/JPG/WEBP, up to 10MB.</div>
+
+                  {uploadingMain && (
+                    <div className="mt-2 inline-flex items-center gap-2 text-emerald-700 text-sm">
+                      <span className="h-2 w-2 animate-pulse rounded-full bg-emerald-600" /> Uploading…
+                    </div>
+                  )}
+
+                  {formData.image && (
+                    <div className="mt-3 flex items-center gap-3">
+                      <img
+                        src={formData.image}
+                        alt="Main preview"
+                        className="h-16 w-16 object-cover rounded-lg border"
+                      />
+                      <input
+                        type="url"
+                        value={formData.image}
+                        readOnly
+                        className="flex-1 border rounded-lg px-3 py-2 text-xs bg-gray-50"
+                      />
+                    </div>
+                  )}
                 </div>
+
+                {/* Additional Image (optional) */}
                 <div>
-                  <label className="block mb-1 text-sm text-gray-700">Additional Image URL</label>
+                  <label className="block mb-1 text-sm text-gray-700">Additional Image</label>
                   <input
-                    type="url"
-                    name="imageUrl"
-                    value={formData.imageUrl}
-                    onChange={handleChange}
-                    className="w-full border rounded-lg px-3 py-2 focus:outline-none focus:ring-2 focus:ring-emerald-500"
-                    disabled={!canEditAndSubmit}
+                    type="file"
+                    accept="image/png, image/jpeg, image/jpg, image/webp"
+                    onChange={handleExtraFile}
+                    className="w-full border rounded-lg px-3 py-2 bg-white focus:outline-none focus:ring-2 focus:ring-emerald-500"
+                    disabled={!canEditAndSubmit || uploadingExtra}
                   />
+                  {uploadingExtra && (
+                    <div className="mt-2 inline-flex items-center gap-2 text-emerald-700 text-sm">
+                      <span className="h-2 w-2 animate-pulse rounded-full bg-emerald-600" /> Uploading…
+                    </div>
+                  )}
+                  {formData.imageUrl && (
+                    <div className="mt-3 flex items-center gap-3">
+                      <img
+                        src={formData.imageUrl}
+                        alt="Additional preview"
+                        className="h-16 w-16 object-cover rounded-lg border"
+                      />
+                      <input
+                        type="url"
+                        value={formData.imageUrl}
+                        readOnly
+                        className="flex-1 border rounded-lg px-3 py-2 text-xs bg-gray-50"
+                      />
+                    </div>
+                  )}
                 </div>
+
+                {/* Video URL (unchanged) */}
                 <div className="sm:col-span-2">
                   <label className="block mb-1 text-sm text-gray-700">Video URL</label>
                   <input
@@ -454,6 +597,10 @@ export default function PromoteEvent() {
                   />
                 </div>
               </div>
+
+              {uploadError && (
+                <div className="mt-3 text-sm text-red-600">{uploadError}</div>
+              )}
             </div>
 
             {/* Organizer Contact */}
