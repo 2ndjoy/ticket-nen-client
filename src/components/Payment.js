@@ -287,6 +287,9 @@ export default function Payment() {
             <div className="mb-4 p-4 bg-green-100 text-green-800 rounded-lg text-center">
               <h3 className="font-semibold text-xl">Payment Confirmed! 🎉</h3>
               <p>Your ticket has been generated. You can download it below.</p>
+              <p className="mt-2 text-sm text-gray-600">
+                A copy of your ticket has been emailed to <b>{user?.email}</b>.
+              </p>
             </div>
 
             {/* Ticket */}
@@ -467,3 +470,4 @@ export default function Payment() {
     </div>
   );
 }
+  

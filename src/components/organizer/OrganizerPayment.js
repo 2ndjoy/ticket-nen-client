@@ -1,10 +1,12 @@
 import React, { useEffect, useState } from "react";
+import { getAuth, onAuthStateChanged } from "firebase/auth";
 
 export default function OrganizerPayment() {
   const [eventData, setEventData] = useState(null);
   const [processing, setProcessing] = useState(false);
   const [platformFee] = useState(500); // fixed fee in BDT
   const [bkashNumber, setBkashNumber] = useState("");
+  const [loggedinemail, setLoggedinemail] = useState("");
 
   useEffect(() => {
     // Retrieve pending event from localStorage
@@ -12,6 +14,18 @@ export default function OrganizerPayment() {
     if (storedEvent) {
       setEventData(JSON.parse(storedEvent));
     }
+
+    // Get logged-in user's email from Firebase Auth
+    const auth = getAuth();
+    const unsubscribe = onAuthStateChanged(auth, (user) => {
+      if (user?.email) {
+        setLoggedinemail(user.email);
+      } else {
+        setLoggedinemail("");
+      }
+    });
+
+    return () => unsubscribe();
   }, []);
 
   const handlePaymentConfirm = async () => {
@@ -25,27 +39,31 @@ export default function OrganizerPayment() {
     setProcessing(true);
 
     try {
-      const res = await fetch("http://localhost:5000/api/events", {
-        method: "POST",
-        headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({ 
-          ...eventData, 
-          platformFee, 
-          bkashNumber 
-        }),
-      });
+  const res = await fetch("http://localhost:5000/api/events", {
+    method: "POST",
+    headers: { "Content-Type": "application/json" },
+    body: JSON.stringify({
+      ...eventData,
+      platformFee,
+      bkashNumber,
+      loggedinemail,
+    }),
+  });
 
-      if (!res.ok) throw new Error("Failed to save event.");
+  const text = await res.text(); // read body (json or text)
+  if (!res.ok) {
+    console.error("POST /api/promoteevents failed:", res.status, text);
+    alert(`❌ Save failed (${res.status}). ${text}`);
+    return;
+  }
 
-      alert("✅ Payment successful! Your event has been published.");
-      localStorage.removeItem("pendingEvent");
-      window.location.href = "/myevents"; // redirect after saving
-    } catch (err) {
-      console.error(err);
-      alert("❌ Something went wrong while saving event.");
-    } finally {
-      setProcessing(false);
-    }
+  alert("✅ Payment successful! Your event has been published.");
+  localStorage.removeItem("pendingEvent");
+  window.location.href = "/events";
+} catch (err) {
+  console.error("Network/JS error:", err);
+  alert("❌ Network error while saving event.");
+}
   };
 
   if (!eventData) {
@@ -70,10 +88,16 @@ export default function OrganizerPayment() {
           <strong>Date:</strong> {eventData.date}
         </p>
         <p className="text-gray-700 mb-2">
+          <strong>Time:</strong> {eventData.time}
+        </p>
+        <p className="text-gray-700 mb-2">
           <strong>Location:</strong> {eventData.location}
         </p>
         <p className="text-gray-700">
           <strong>Organizer Email:</strong> {eventData.email}
+        </p>
+        <p className="text-gray-700">
+          <strong>Organizer Phone:</strong> {eventData.phone}
         </p>
       </div>
 

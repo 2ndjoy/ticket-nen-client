@@ -1,6 +1,6 @@
 import React, { useState, useEffect } from 'react';
 import { motion } from "framer-motion";
-import { Phone, Mail, MapPin, Clock, Send } from 'lucide-react';
+import { Phone, Mail, MapPin, Clock, Send, ChevronDown, Search } from 'lucide-react';
 import { onAuthStateChanged } from "firebase/auth";
 import { auth } from "../firebase";
 
@@ -19,17 +19,54 @@ export default function Contact() {
   const [checkingAuth, setCheckingAuth] = useState(true);
   const [submitting, setSubmitting] = useState(false);
 
+  // FAQ state
+  const [faqOpen, setFaqOpen] = useState(null); // stores index of open item
+  const [faqQuery, setFaqQuery] = useState("");
+
+  const faqs = [
+    {
+      q: "Do I have to log in to contact support?",
+      a: "Yes. We require login so we can reach you back at a verified email and speed up ticket resolution."
+    },
+    {
+      q: "Where can I find my purchased tickets?",
+      a: "Go to My Profile → My Bookings. You can also download a PDF ticket or PNG image from the booking card."
+    },
+    {
+      q: "I didn’t receive the ticket email. What should I do?",
+      a: "Check Spam/Promotions. If still missing, open My Bookings and re-download the ticket. You can also contact us with your Booking ID."
+    },
+    {
+      q: "Can I refund or transfer a ticket?",
+      a: "Refund and transfer policies depend on the organizer. Check the event details page or contact support with your Booking ID."
+    },
+    {
+      q: "How do I become an organizer?",
+      a: "Sign in and register as an organizer from the Organizer section. Once approved, you can publish events and track sales."
+    },
+    {
+      q: "What payment methods are accepted?",
+      a: "We support popular local gateways and card payments. The exact options appear during checkout for each event."
+    },
+  ];
+
+  const visibleFaqs = faqs.filter(
+    ({ q, a }) =>
+      q.toLowerCase().includes(faqQuery.toLowerCase()) ||
+      a.toLowerCase().includes(faqQuery.toLowerCase())
+  );
+
   useEffect(() => {
     const unsub = onAuthStateChanged(auth, (u) => {
       setUser(u || null);
       setCheckingAuth(false);
-      // Pre-fill email if logged in and empty
       if (u?.email && !formData.email) {
         setFormData((prev) => ({ ...prev, email: u.email }));
       }
     });
     return () => unsub();
-  }, []); // eslint-disable-line
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, []);
 
   const handleInputChange = (e) => {
     setFormData({
@@ -41,14 +78,12 @@ export default function Contact() {
   const handleSubmit = async (e) => {
     e.preventDefault();
 
-    // Block submission if not logged in
     if (!user) {
       alert("Please log in to send a message.");
       window.location.href = "/login";
       return;
     }
 
-    // basic required check
     const required = ["firstName", "mobile", "email", "message"];
     const missing = required.filter((k) => !String(formData[k] ?? "").trim());
     if (missing.length) {
@@ -71,7 +106,7 @@ export default function Contact() {
         method: "POST",
         headers: {
           "Content-Type": "application/json",
-          Authorization: `Bearer ${token}`, // optional if you verify token in backend
+          Authorization: `Bearer ${token}`,
         },
         body: JSON.stringify(payload),
       });
@@ -81,7 +116,6 @@ export default function Contact() {
         throw new Error(body.error || "Failed to submit message.");
       }
 
-      // success
       alert("✅ Your message was sent successfully!");
       setFormData({
         firstName: '',
@@ -101,17 +135,12 @@ export default function Contact() {
 
   return (
     <div className="relative min-h-screen overflow-hidden">
-      {/* === Decorative Background (cohesive with your other pages) === */}
+      {/* === Decorative Background === */}
       <div className="pointer-events-none absolute inset-0 -z-10">
-        {/* Base gradient */}
         <div className="absolute inset-0 bg-gradient-to-b from-emerald-50 via-white to-white" />
-
-        {/* Blobs */}
         <div className="absolute -top-24 -left-24 h-80 w-80 rounded-full bg-teal-200 blur-3xl opacity-50" />
         <div className="absolute top-1/3 -right-24 h-96 w-96 rounded-full bg-emerald-300 blur-3xl opacity-40" />
         <div className="absolute bottom-[-8rem] left-1/2 -translate-x-1/2 h-[28rem] w-[60rem] rounded-[50%] bg-emerald-100 blur-3xl opacity-40" />
-
-        {/* Subtle grid pattern */}
         <svg
           className="absolute inset-0 h-full w-full opacity-[0.12] [mask-image:radial-gradient(ellipse_at_center,white,transparent_70%)]"
           aria-hidden="true"
@@ -129,8 +158,6 @@ export default function Contact() {
           </defs>
           <rect width="100%" height="100%" fill="url(#contact-grid)" />
         </svg>
-
-        {/* Noise overlay */}
         <div
           className="absolute inset-0 opacity-[0.04] mix-blend-multiply"
           style={{
@@ -148,7 +175,6 @@ export default function Contact() {
           transition={{ duration: 0.8 }}
         >
           <div className="max-w-7xl mx-auto">
-            {/* Top Callout */}
             <div className="relative overflow-hidden rounded-2xl bg-gradient-to-r from-[#128f8b] via-[#0e7d7a] to-[#0e6b69] text-white shadow-lg mb-8">
               <div className="p-6 sm:p-8">
                 <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-4">
@@ -165,7 +191,6 @@ export default function Contact() {
                   </div>
                 </div>
               </div>
-              {/* Auth hint banner */}
               {!checkingAuth && !user && (
                 <div className="bg-white/15 backdrop-blur-sm text-white px-6 py-3 text-sm">
                   You must be logged in to submit the contact form.{" "}
@@ -176,38 +201,31 @@ export default function Contact() {
             </div>
 
             {/* Content Grid */}
-            <div className="grid md:grid-cols-2 gap-8">
+            <div className="grid lg:grid-cols-3 gap-8">
               {/* Left Side - Get In Touch */}
-              <div className="rounded-2xl border bg-white/70 backdrop-blur-md shadow-sm p-6 sm:p-8">
+              <div className="rounded-2xl border bg-white/70 backdrop-blur-md shadow-sm p-6 sm:p-8 lg:col-span-1">
                 <h2 className="text-xl sm:text-2xl font-bold mb-6 text-center text-gray-900">
                   Get In Touch With Us Now!
                 </h2>
 
                 <div className="grid grid-cols-2 gap-6">
-                  {/* Phone Number */}
                   <div className="text-center p-6 bg-white text-gray-800 rounded-xl border hover:shadow-md transition">
                     <Phone className="w-8 h-8 mx-auto mb-3 text-[#128f8b]" />
                     <h3 className="font-semibold mb-2">Phone Number</h3>
                     <p className="text-sm">+880 1731047260</p>
                   </div>
-
-                  {/* Email */}
                   <div className="text-center p-6 bg-white text-gray-800 rounded-xl border hover:shadow-md transition">
                     <Mail className="w-8 h-8 mx-auto mb-3 text-[#128f8b]" />
                     <h3 className="font-semibold mb-2">Email</h3>
                     <p className="text-xs">support@ticketnenbd.com</p>
                     <p className="text-xs">info@ticketnenbd.com</p>
                   </div>
-
-                  {/* Location */}
                   <div className="text-center p-6 bg-white text-gray-800 rounded-xl border hover:shadow-md transition">
                     <MapPin className="w-8 h-8 mx-auto mb-3 text-[#128f8b]" />
                     <h3 className="font-semibold mb-2">Location</h3>
                     <p className="text-xs">Tilagor Point, Sylhet,</p>
                     <p className="text-xs">SYL 3000, BD</p>
                   </div>
-
-                  {/* Working Hours */}
                   <div className="text-center p-6 bg-white text-gray-800 rounded-xl border hover:shadow-md transition">
                     <Clock className="w-8 h-8 mx-auto mb-3 text-[#128f8b]" />
                     <h3 className="font-semibold mb-2">Working Hours</h3>
@@ -217,8 +235,8 @@ export default function Contact() {
                 </div>
               </div>
 
-              {/* Right Side - Contact Form */}
-              <div className="rounded-2xl border bg-white/70 backdrop-blur-md shadow-sm p-6 sm:p-8">
+              {/* Middle - Contact Form */}
+              <div className="rounded-2xl border bg-white/70 backdrop-blur-md shadow-sm p-6 sm:p-8 lg:col-span-1">
                 <h2 className="text-xl sm:text-2xl font-bold mb-6 text-center text-gray-900">
                   Contact Us
                 </h2>
@@ -310,6 +328,59 @@ export default function Contact() {
                     </p>
                   )}
                 </form>
+              </div>
+
+              {/* Right - FAQ */}
+              <div className="rounded-2xl border bg-white/70 backdrop-blur-md shadow-sm p-6 sm:p-8 lg:col-span-1">
+                <h2 className="text-xl sm:text-2xl font-bold mb-4 text-gray-900">FAQs</h2>
+
+                {/* FAQ Search */}
+                <div className="mb-4 relative">
+                  <input
+                    type="text"
+                    value={faqQuery}
+                    onChange={(e) => setFaqQuery(e.target.value)}
+                    placeholder="Search FAQs…"
+                    className="w-full pl-10 pr-4 py-2.5 bg-white border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-emerald-500"
+                  />
+                  <Search className="w-4 h-4 absolute left-3 top-1/2 -translate-y-1/2 text-gray-500" />
+                </div>
+
+                <div className="space-y-3">
+                  {visibleFaqs.length === 0 ? (
+                    <p className="text-sm text-gray-600">No results. Try a different keyword.</p>
+                  ) : (
+                    visibleFaqs.map((item, idx) => {
+                      const open = faqOpen === idx;
+                      return (
+                        <div
+                          key={idx}
+                          className="bg-white border rounded-lg overflow-hidden"
+                        >
+                          <button
+                            type="button"
+                            onClick={() => setFaqOpen(open ? null : idx)}
+                            className="w-full flex items-center justify-between text-left px-4 py-3 hover:bg-gray-50"
+                          >
+                            <span className="font-medium text-gray-900">{item.q}</span>
+                            <ChevronDown
+                              className={`w-5 h-5 text-gray-600 transition-transform ${open ? "rotate-180" : ""}`}
+                            />
+                          </button>
+                          <div
+                            className={`px-4 transition-[max-height] duration-300 ease-in-out ${open ? "max-h-40 py-2" : "max-h-0"} overflow-hidden`}
+                          >
+                            <p className="text-sm text-gray-700">{item.a}</p>
+                          </div>
+                        </div>
+                      );
+                    })
+                  )}
+                </div>
+
+                <div className="mt-5 text-xs text-gray-600">
+                  Still stuck? <a href="#top" className="text-emerald-700 underline">Send us a message</a> and our team will help.
+                </div>
               </div>
             </div>
           </div>

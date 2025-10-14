@@ -99,8 +99,18 @@ const EventDetails = () => {
           <div className="grid grid-cols-1 sm:grid-cols-3 gap-4 mt-6">
             <div className="rounded-xl border bg-white p-4 shadow-sm">
               <p className="text-xs uppercase tracking-wider text-gray-500">Date</p>
-              <p className="mt-1 text-base font-semibold">{event.date || "-"}</p>
+              <p className="mt-1 text-base font-semibold">
+                {(() => {
+                  const v = event?.date;
+                  if (!v) return "-";
+                  const d = v instanceof Date ? v : new Date(v);
+                  if (isNaN(d)) return "-";
+                  // dateStyle keeps it clean; uses the viewer's locale/timezone
+                  return new Intl.DateTimeFormat(undefined, { dateStyle: "medium" }).format(d);
+                })()}
+              </p>
             </div>
+
             <div className="rounded-xl border bg-white p-4 shadow-sm">
               <p className="text-xs uppercase tracking-wider text-gray-500">Time</p>
               <p className="mt-1 text-base font-semibold">{event.time || "-"}</p>

@@ -1,5 +1,6 @@
 import React, { useEffect, useMemo, useState } from "react";
 import { auth } from "../firebase";
+import { useSearchParams, useNavigate } from "react-router-dom";
 
 const API_BASE =
   process.env.REACT_APP_API_BASE?.replace(/\/$/, "") || "http://localhost:5000";
@@ -7,6 +8,11 @@ const API_BASE =
 const IMGBB_API_KEY = process.env.REACT_APP_IMGBB_API_KEY; // <-- set this in your .env
 
 export default function PromoteEvent() {
+  const [searchParams] = useSearchParams();
+  const navigate = useNavigate();
+  const editId = searchParams.get("edit");
+  const isEditing = Boolean(editId);
+
   const [formData, setFormData] = useState({
     title: "",
     subtitle: "",
@@ -19,13 +25,13 @@ export default function PromoteEvent() {
     location: "",
     status: "",
     description: "",
-    image: "", // will be auto-filled after upload
-    imageUrl: "", // optional second image
+    image: "", // auto-filled after upload
+    imageUrl: "", // optional
     videoUrl: "",
     email: "",
     phone: "",
-    attendees: 0,
-    rating: 0,
+    attendees: 0, // not sent to backend; harmless here
+    rating: 0,    // not sent to backend; harmless here
     vipTickets: 0,
     regularTickets: 0,
   });
@@ -38,6 +44,7 @@ export default function PromoteEvent() {
 
   // ui state
   const [reviewing, setReviewing] = useState(false);
+  const [loadingEvent, setLoadingEvent] = useState(false);
 
   // upload state
   const [uploadingMain, setUploadingMain] = useState(false);
@@ -50,6 +57,21 @@ export default function PromoteEvent() {
     [user, checkingRole, isOrganizer]
   );
 
+  // --- helpers ---
+  const toDateInput = (iso) => {
+    if (!iso) return "";
+    const d = new Date(iso);
+    if (Number.isNaN(d.getTime())) return "";
+    const yyyy = d.getFullYear();
+    const mm = String(d.getMonth() + 1).padStart(2, "0");
+    const dd = String(d.getDate()).padStart(2, "0");
+    return `${yyyy}-${mm}-${dd}`;
+  };
+
+  const numberProvided = (v) =>
+    !(v === "" || v === null || v === undefined); // allows 0
+
+  // --- Auth + organizer gate ---
   useEffect(() => {
     const unsub = auth.onAuthStateChanged(async (u) => {
       setUser(u || null);
@@ -57,10 +79,12 @@ export default function PromoteEvent() {
       setRoleError("");
       setCheckingRole(true);
 
+      if (u?.email) {
+        setFormData((prev) => ({ ...prev, email: prev.email || u.email }));
+      }
+
       try {
-        if (!u) {
-          return;
-        }
+        if (!u) return;
 
         const email = u.email;
         if (!email) {
@@ -68,13 +92,10 @@ export default function PromoteEvent() {
           return;
         }
 
-        // Optional: include Firebase ID token if your API checks it.
         let token = "";
         try {
           token = await u.getIdToken();
-        } catch {
-          // ignore token failure; endpoint may be public
-        }
+        } catch {}
 
         const url = `${API_BASE}/api/organizers?email=${encodeURIComponent(email)}`;
         const res = await fetch(url, {
@@ -92,7 +113,6 @@ export default function PromoteEvent() {
         }
 
         const data = await res.json();
-        // API might return an object or an array—handle both.
         const profile = Array.isArray(data) ? data[0] : data;
 
         const role = String(profile?.role || "").toLowerCase();
@@ -100,13 +120,12 @@ export default function PromoteEvent() {
 
         setIsOrganizer(role === "organizer" && status === "active");
 
-        // Prefill contact from profile if blank
         setFormData((prev) => ({
           ...prev,
           email: prev.email || profile?.email || email || "",
           phone: prev.phone || profile?.phoneNumber || "",
         }));
-      } catch (e) {
+      } catch {
         setIsOrganizer(false);
         setRoleError("Could not reach the server to verify organizer status.");
       } finally {
@@ -115,7 +134,48 @@ export default function PromoteEvent() {
     });
 
     return () => unsub();
-  }, []);
+  }, [API_BASE]);
+
+  // --- If editing, fetch the event and prefill form ---
+  useEffect(() => {
+    if (!isEditing) return;
+    (async () => {
+      setLoadingEvent(true);
+      try {
+        const res = await fetch(`${API_BASE}/api/events/${editId}`);
+        if (!res.ok) throw new Error(`Failed to load event (${res.status})`);
+        const ev = await res.json();
+
+        setFormData((prev) => ({
+          ...prev,
+          title: ev.title || "",
+          subtitle: ev.subtitle || "",
+          date: toDateInput(ev.date),
+          time: ev.time || "",
+          category: ev.category || "",
+          status: ev.status || "Draft",
+          location: ev.location || "",
+          description: ev.description || "",
+          image: ev.image || "",
+          imageUrl: ev.imageUrl || "",
+          videoUrl: ev.videoUrl || "",
+          email: ev.email || prev.email || "",
+          phone: ev.phone || prev.phone || "",
+          vipPrice: ev.vipPrice ?? ev.vipTicketPrice ?? "",
+          regularPrice: ev.regularPrice ?? ev.regularTicketPrice ?? "",
+          vipTickets: ev.vipTickets ?? ev.vipTicketQuantity ?? 0,
+          regularTickets: ev.regularTickets ?? ev.ticketQuantity ?? 0,
+          price: ev.price ?? "",
+        }));
+      } catch (err) {
+        console.error(err);
+        alert("Could not load the event for editing.");
+        navigate("/organizer/my-events");
+      } finally {
+        setLoadingEvent(false);
+      }
+    })();
+  }, [API_BASE, isEditing, editId, navigate]);
 
   const handleChange = (e) => {
     const { name, value } = e.target;
@@ -140,7 +200,6 @@ export default function PromoteEvent() {
 
     if (!file) throw new Error("No file selected");
 
-    // basic validation (adjust as needed)
     const allowed = ["image/png", "image/jpeg", "image/jpg", "image/webp"];
     if (!allowed.includes(file.type)) {
       throw new Error("Unsupported file type. Please upload PNG, JPG, or WEBP.");
@@ -151,7 +210,7 @@ export default function PromoteEvent() {
     }
 
     const dataUrl = await toBase64(file);
-    const base64 = String(dataUrl).split(",")[1]; // remove data:...;base64, prefix
+    const base64 = String(dataUrl).split(",")[1];
 
     const body = new FormData();
     body.append("image", base64);
@@ -167,7 +226,6 @@ export default function PromoteEvent() {
       throw new Error(msg);
     }
 
-    // ImgBB response shape: payload.data.url, payload.data.display_url, payload.data.delete_url
     return {
       url: payload.data.url,
       displayUrl: payload.data.display_url,
@@ -206,19 +264,12 @@ export default function PromoteEvent() {
     }
   };
 
+  // --- Submit: same validation, but allow zeros for numbers ---
   const handleSubmit = (e) => {
     e.preventDefault();
 
-    if (!user) {
-      alert("Please sign in first.");
-      return;
-    }
-
-    if (checkingRole) {
-      alert("Checking your organizer status. Please try again shortly.");
-      return;
-    }
-
+    if (!user) return alert("Please sign in first.");
+    if (checkingRole) return alert("Checking your organizer status. Please try again shortly.");
     if (!isOrganizer) {
       alert("Register as an Organizer to promote events.");
       window.location.href = "/registerorg";
@@ -232,32 +283,99 @@ export default function PromoteEvent() {
       !formData.time ||
       !formData.location ||
       !formData.description ||
-      !formData.email ||
+      !(formData.email || user?.email) ||
       !formData.phone ||
-      !formData.vipTickets ||
-      !formData.vipPrice ||
-      !formData.regularTickets ||
-      !formData.regularPrice ||
+      !numberProvided(formData.vipTickets) ||
+      !numberProvided(formData.vipPrice) ||
+      !numberProvided(formData.regularTickets) ||
+      !numberProvided(formData.regularPrice) ||
       !formData.category ||
       !formData.status ||
-      !formData.image // now must be set by the upload
+      !formData.image
     ) {
       alert("Please fill all required fields (make sure to upload the image).");
       return;
     }
 
-    // At this point, formData.image and formData.imageUrl are public URLs from ImgBB.
-    // You can post formData to your backend to persist to MongoDB.
-    // Example (uncomment if you want to save before the payment step):
-    // fetch(`${API_BASE}/api/events`, { method: 'POST', headers: { 'Content-Type': 'application/json' }, body: JSON.stringify(formData) });
+    if (!formData.email && user?.email) {
+      setFormData((prev) => ({ ...prev, email: user.email }));
+    }
 
     setReviewing(true);
   };
 
   const handleConfirmAndPay = () => {
-    localStorage.setItem("pendingEvent", JSON.stringify(formData));
+    // CREATE FLOW: stash in localStorage, go to payment page
+    const payload = {
+      ...formData,
+      vipPrice: Number(formData.vipPrice),
+      regularPrice: Number(formData.regularPrice),
+      vipTickets: Number(formData.vipTickets),
+      regularTickets: Number(formData.regularTickets),
+      email: formData.email || user?.email || "",
+    };
+    localStorage.setItem("pendingEvent", JSON.stringify(payload));
     window.location.href = "/organizer/payment";
   };
+
+  const handleSaveChanges = async () => {
+    // EDIT FLOW: PUT /api/organizers/events/:id
+    try {
+      const u = auth.currentUser;
+      const token = await u?.getIdToken?.();
+      if (!token) {
+        alert("Could not authenticate. Please sign in again.");
+        return;
+      }
+
+      const body = {
+        title: String(formData.title || "").trim(),
+        subtitle: String(formData.subtitle || "").trim(),
+        date: formData.date, // server will coerce to Date
+        time: formData.time,
+        category: formData.category,
+        status: formData.status,
+        location: String(formData.location || "").trim(),
+        description: formData.description,
+        image: formData.image,
+        imageUrl: formData.imageUrl || "",
+        videoUrl: formData.videoUrl || "",
+        // canonical backend names:
+        vipTicketPrice: Number(formData.vipPrice),
+        regularTicketPrice: Number(formData.regularPrice),
+        vipTicketQuantity: Number(formData.vipTickets),
+        ticketQuantity: Number(formData.regularTickets),
+        price: formData.price,
+      };
+
+      const res = await fetch(`${API_BASE}/api/organizers/events/${editId}`, {
+        method: "PUT",
+        headers: {
+          "Content-Type": "application/json",
+          Authorization: `Bearer ${token}`,
+        },
+        body: JSON.stringify(body),
+      });
+
+      if (!res.ok) {
+        const t = await res.text();
+        throw new Error(t || `Failed (${res.status})`);
+      }
+
+      alert("✅ Event updated successfully.");
+      navigate("/organizer/my-events");
+    } catch (err) {
+      console.error("Update failed:", err);
+      alert(`❌ Update failed. ${err.message || "Please try again."}`);
+    }
+  };
+
+  // ---- Render ----
+  const headerTitle = isEditing ? "Edit Event" : "Promote Your Event";
+
+  if (isEditing && loadingEvent) {
+    return <div className="max-w-5xl mx-auto p-6 mt-10">Loading event…</div>;
+  }
 
   return (
     <div className="relative isolate min-h-screen">
@@ -307,9 +425,13 @@ export default function PromoteEvent() {
               <div>
                 {canEditAndSubmit ? (
                   <>
-                    <h2 className="text-2xl sm:text-3xl font-bold">Organizer verified</h2>
+                    <h2 className="text-2xl sm:text-3xl font-bold">
+                      {isEditing ? "Organizer verified — editing" : "Organizer verified"}
+                    </h2>
                     <p className="mt-1 text-white/90">
-                      You can promote your event. Fill in the details below.
+                      {isEditing
+                        ? "Update your event details and save changes."
+                        : "You can promote your event. Fill in the details below."}
                     </p>
                   </>
                 ) : (
@@ -334,22 +456,14 @@ export default function PromoteEvent() {
 
             {/* Stepper */}
             <div className="mt-6 flex items-center gap-3 text-sm">
-              <div
-                className={`h-2 w-2 rounded-full ${
-                  !reviewing ? "bg-white" : "bg-white/60"
-                }`}
-              />
+              <div className={`h-2 w-2 rounded-full ${!reviewing ? "bg-white" : "bg-white/60"}`} />
               <span className={`${!reviewing ? "text-white" : "text-white/80"}`}>
-                1) Fill details
+                1) {isEditing ? "Edit details" : "Fill details"}
               </span>
               <div className="h-[1px] flex-1 bg-white/30 mx-3" />
-              <div
-                className={`h-2 w-2 rounded-full ${
-                  reviewing ? "bg-white" : "bg-white/60"
-                }`}
-              />
+              <div className={`h-2 w-2 rounded-full ${reviewing ? "bg-white" : "bg-white/60"}`} />
               <span className={`${reviewing ? "text-white" : "text-white/80"}`}>
-                2) Review & Pay
+                2) {isEditing ? "Review & Save" : "Review & Pay"}
               </span>
             </div>
 
@@ -382,7 +496,7 @@ export default function PromoteEvent() {
           </div>
         </div>
 
-        <h1 className="text-3xl font-bold mb-5 text-center">Promote Your Event</h1>
+        <h1 className="text-3xl font-bold mb-5 text-center">{headerTitle}</h1>
 
         {!reviewing ? (
           <form onSubmit={handleSubmit} className="space-y-6">
@@ -584,7 +698,7 @@ export default function PromoteEvent() {
                   )}
                 </div>
 
-                {/* Video URL (unchanged) */}
+                {/* Video URL */}
                 <div className="sm:col-span-2">
                   <label className="block mb-1 text-sm text-gray-700">Video URL</label>
                   <input
@@ -612,11 +726,10 @@ export default function PromoteEvent() {
                   <input
                     type="email"
                     name="email"
-                    value={formData.email}
-                    onChange={handleChange}
-                    className="w-full border rounded-lg px-3 py-2 focus:outline-none focus:ring-2 focus:ring-emerald-500"
+                    value={formData.email || user?.email || ""}
+                    readOnly
+                    className="w-full border rounded-lg px-3 py-2 bg-gray-100 text-gray-700 cursor-not-allowed"
                     required
-                    disabled={!canEditAndSubmit}
                   />
                 </div>
                 <div>
@@ -712,10 +825,12 @@ export default function PromoteEvent() {
                     ? "Verifying organizer status"
                     : !isOrganizer
                     ? "Register as an Organizer to promote events"
+                    : isEditing
+                    ? "Review your changes"
                     : "Review your event"
                 }
               >
-                Review
+                {isEditing ? "Review Changes" : "Review"}
               </button>
             </div>
           </form>
@@ -723,9 +838,13 @@ export default function PromoteEvent() {
           <div className="rounded-2xl border bg-white/90 backdrop-blur-sm shadow-sm p-5">
             <div className="flex items-start justify-between gap-4">
               <div>
-                <h2 className="text-xl font-bold mb-1">Review Your Event</h2>
+                <h2 className="text-xl font-bold mb-1">
+                  {isEditing ? "Review Your Changes" : "Review Your Event"}
+                </h2>
                 <p className="text-sm text-gray-600">
-                  Please confirm all details before proceeding to payment.
+                  {isEditing
+                    ? "Please confirm all updates before saving."
+                    : "Please confirm all details before proceeding to payment."}
                 </p>
               </div>
               <span className="px-2.5 py-1 rounded-full text-xs bg-emerald-50 text-emerald-700 font-semibold">
@@ -762,7 +881,7 @@ export default function PromoteEvent() {
                 ["Main Image URL", formData.image],
                 ["Additional Image URL", formData.imageUrl],
                 ["Video URL", formData.videoUrl],
-                ["Email", formData.email],
+                ["Email", formData.email || user?.email || ""],
                 ["Phone", formData.phone],
                 ["VIP Tickets", formData.vipTickets],
                 ["VIP Ticket Price", formData.vipPrice],
@@ -784,12 +903,22 @@ export default function PromoteEvent() {
               >
                 Edit
               </button>
-              <button
-                onClick={handleConfirmAndPay}
-                className="bg-[#128f8b] hover:bg-emerald-700 text-white py-2.5 px-6 rounded-xl font-semibold shadow transition"
-              >
-                Confirm & Pay
-              </button>
+
+              {isEditing ? (
+                <button
+                  onClick={handleSaveChanges}
+                  className="bg-blue-600 hover:bg-blue-700 text-white py-2.5 px-6 rounded-xl font-semibold shadow transition"
+                >
+                  Save Changes
+                </button>
+              ) : (
+                <button
+                  onClick={handleConfirmAndPay}
+                  className="bg-[#128f8b] hover:bg-emerald-700 text-white py-2.5 px-6 rounded-xl font-semibold shadow transition"
+                >
+                  Confirm & Pay
+                </button>
+              )}
             </div>
           </div>
         )}
