@@ -17,7 +17,7 @@ export default function ManageEvents() {
     setLoading(true);
     setError("");
     try {
-      const data = await apiGet("/api/admin/events");
+      const data = await apiGet("/api/events");
       // backend may return array or {items:[]}
       const list = Array.isArray(data) ? data : data?.items || [];
       if (!Array.isArray(list) || list.length === 0) {
@@ -50,7 +50,7 @@ export default function ManageEvents() {
 
     try {
       // matches DELETE /api/admin/events/:id in your backend
-      await apiDelete(`/api/admin/events/${id}`);
+      await apiDelete(`/api/events/${id}`);
     } catch (e) {
       setRows(prev); // rollback on failure
       setError(e?.message || "Delete failed");

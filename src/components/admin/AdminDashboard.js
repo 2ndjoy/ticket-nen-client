@@ -73,29 +73,6 @@ export default function AdminDashboard() {
     return () => { alive = false; };
   }, []);
 
-  const cards = useMemo(
-    () => [
-      {
-        title: "Total Events",
-        count: overview.totalEvents,
-        icon: <CalendarDays className="text-indigo-600 w-8 h-8" strokeWidth={1.5} />,
-        color: "bg-indigo-100",
-      },
-      {
-        title: "Registered Users",
-        count: overview.totalUsers,
-        icon: <Users className="text-emerald-600 w-8 h-8" strokeWidth={1.5} />,
-        color: "bg-emerald-100",
-      },
-      {
-        title: "Tickets Sold",
-        count: overview.ticketsSold,
-        icon: <BarChart4 className="text-yellow-500 w-8 h-8" strokeWidth={1.5} />,
-        color: "bg-yellow-100",
-      },
-    ],
-    [overview]
-  );
 
   return (
     <div className="min-h-screen bg-gradient-to-tr from-gray-100 via-white to-gray-50 p-8">
@@ -108,31 +85,7 @@ export default function AdminDashboard() {
         Admin Dashboard
       </motion.h1>
 
-      {/* Summary Cards */}
-      <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-8 mb-12">
-        {cards.map((card, i) => (
-          <motion.div
-            key={i}
-            className={`${card.color} rounded-2xl p-8 shadow-md flex items-center space-x-6 hover:shadow-xl transition-shadow`}
-            initial={{ opacity: 0, y: 20 }}
-            animate={{ opacity: 1, y: 0 }}
-            transition={{ delay: i * 0.15 }}
-          >
-            <div className="p-3 rounded-full bg-white shadow">{card.icon}</div>
-            <div>
-              <p className="text-sm font-semibold text-gray-700">{card.title}</p>
-              <h3 className="text-3xl font-extrabold text-gray-900">
-                {loading ? (
-                  <span className="inline-block h-6 w-16 bg-gray-200 rounded animate-pulse" />
-                ) : (
-                  card.count
-                )}
-              </h3>
-            </div>
-          </motion.div>
-        ))}
-      </div>
-
+     
       {/* Quick Links */}
       <div className="grid grid-cols-1 md:grid-cols-3 gap-8 mb-14">
         {[
@@ -151,79 +104,7 @@ export default function AdminDashboard() {
         ))}
       </div>
 
-      {/* Charts */}
-      <div className="grid grid-cols-1 lg:grid-cols-2 gap-8">
-        {/* Line Chart */}
-        <div className="bg-white p-6 rounded-2xl shadow-md">
-          <h3 className="text-xl font-bold mb-4">Events Over Time</h3>
-          <div className="h-[320px]">
-            {!loading && lineData.length > 0 ? (
-              <ResponsiveContainer width="100%" height="100%">
-                <LineChart data={lineData}>
-                  <CartesianGrid stroke="#eee" />
-                  <XAxis dataKey="name" />
-                  <YAxis allowDecimals={false} />
-                  <Tooltip />
-                  <Legend />
-                  <Line type="monotone" dataKey="events" stroke="#6366F1" strokeWidth={2} dot={{ r: 3 }} />
-                </LineChart>
-              </ResponsiveContainer>
-            ) : (
-              <div className="h-full w-full bg-gray-100 rounded animate-pulse" />
-            )}
-          </div>
-        </div>
-
-        {/* Pie Chart */}
-        <div className="bg-white p-6 rounded-2xl shadow-md">
-          <h3 className="text-xl font-bold mb-4">Event Categories</h3>
-          <div className="h-[320px]">
-            {!loading && pieData.length > 0 ? (
-              <ResponsiveContainer width="100%" height="100%">
-                <PieChart>
-                  <Pie data={pieData} dataKey="value" nameKey="name" outerRadius={100} label>
-                    {pieData.map((_, index) => (
-                      <Cell key={index} fill={COLORS[index % COLORS.length]} />
-                    ))}
-                  </Pie>
-                  <Tooltip />
-                  <Legend />
-                </PieChart>
-              </ResponsiveContainer>
-            ) : (
-              <div className="h-full w-full bg-gray-100 rounded animate-pulse" />
-            )}
-          </div>
-        </div>
-
-        {/* Bar Chart */}
-        <div className="bg-white p-6 rounded-2xl shadow-md lg:col-span-2">
-          <h3 className="text-xl font-bold mb-4">Top Events by Tickets Sold</h3>
-          <div className="h-[360px]">
-            {!loading && topEvents.length > 0 ? (
-              <ResponsiveContainer width="100%" height="100%">
-                <BarChart data={topEvents.map((e) => ({ name: e.title, sold: Number(e.sold || 0) }))}>
-                  <CartesianGrid strokeDasharray="3 3" />
-                  <XAxis
-                    dataKey="name"
-                    tick={{ fontSize: 12 }}
-                    interval={0}
-                    angle={-15}
-                    textAnchor="end"
-                    height={60}
-                  />
-                  <YAxis allowDecimals={false} />
-                  <Tooltip />
-                  <Legend />
-                  <Bar dataKey="sold" fill="#10B981" radius={[6, 6, 0, 0]} />
-                </BarChart>
-              </ResponsiveContainer>
-            ) : (
-              <div className="h-full w-full bg-gray-100 rounded animate-pulse" />
-            )}
-          </div>
-        </div>
-      </div>
+     
     </div>
   );
 }

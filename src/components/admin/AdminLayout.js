@@ -33,9 +33,7 @@ export default function AdminLayout() {
           <Link to="/admin/manage-events" className="flex items-center gap-2 hover:text-yellow-300" onClick={() => setSidebarOpen(false)}>
             <CalendarDays size={18} /> Events
           </Link>
-          <Link to="/admin/charts" className="flex items-center gap-2 hover:text-yellow-300" onClick={() => setSidebarOpen(false)}>
-            <BarChart3 size={18} /> Charts
-          </Link>
+         
           <Link to="/admin/tickets-sold" className="flex items-center gap-2 hover:text-yellow-300" onClick={() => setSidebarOpen(false)}>
             <Ticket size={18} /> Tickets & Revenue
           </Link>
