@@ -46,7 +46,11 @@ const Login = () => {
 
     // === STATIC ADMIN SHORTCUT ===
     // Allow "admin"/"admin" to log into admin dashboard directly.
+<<<<<<< HEAD
     if (form.email === "admin@ticketnen.com" && form.password === "admin") {
+=======
+    if (form.email === "admin" && form.password === "admin") {
+>>>>>>> b0813ffeec7ec5e8809b33b759d38e33ad72dcb7
       toast.success("Welcome, Admin!");
       navigate("/admin/admin-dashboard");
       return;
