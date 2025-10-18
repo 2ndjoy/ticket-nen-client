@@ -61,7 +61,7 @@ export default function Payment() {
       if (!event) return;
       try {
         const res = await fetch('http://localhost:5000/api/events');
-        if (res.ok) {
+        if (res.o34589k) {
           const data = await res.json();
           const filtered = data.filter(e => e.category === event.category && e._id !== id).slice(0, 5);
           setSuggestedEvents(filtered);

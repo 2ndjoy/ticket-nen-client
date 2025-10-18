@@ -15,6 +15,7 @@ import {
   sendEmailVerification,
   fetchSignInMethodsForEmail,
   signInWithEmailAndPassword,
+  onAuthStateChanged,
 } from "firebase/auth";
 import { auth } from "../firebase";
 
@@ -60,8 +61,13 @@ const RegisterOrg = () => {
   const [userObj, setUserObj] = useState(null);
   const [resendDisabled, setResendDisabled] = useState(false);
 
+  // Track current auth user for prefilling & locking email
+  const [currentUser, setCurrentUser] = useState(null);
+
   const handleChange = (e) => {
     const { name, value } = e.target;
+    // prevent editing email if already logged in (input is disabled anyway—this is just extra guard)
+    if (name === "email" && currentUser) return;
     setForm({ ...form, [name]: value });
   };
 
@@ -70,6 +76,17 @@ const RegisterOrg = () => {
     const { checked } = e.target;
     setForm((prev) => ({ ...prev, agreeTerms: checked }));
   };
+
+  // Prefill & lock email if a user is already logged in
+  useEffect(() => {
+    const unsub = onAuthStateChanged(auth, (u) => {
+      setCurrentUser(u);
+      if (u?.email) {
+        setForm((prev) => ({ ...prev, email: u.email }));
+      }
+    });
+    return unsub;
+  }, []);
 
   const validateInputs = () => {
     const newErrors = {};
@@ -92,7 +109,11 @@ const RegisterOrg = () => {
       newErrors.fullName = "Full name must be 3-50 letters only.";
     }
 
-    if (!/^[a-zA-Z0-9._%+-]+@[a-zA-Z0-9.-]+\.[a-zA-Z]{2,}$/.test(email)) {
+    // If not logged in, validate user-typed email. If logged in, we trust Firebase's email.
+    if (
+      !currentUser &&
+      !/^[a-zA-Z0-9._%+-]+@[a-zA-Z0-9.-]+\.[a-zA-Z]{2,}$/.test(email)
+    ) {
       newErrors.email = "Please enter a valid email address.";
     }
 
@@ -125,15 +146,18 @@ const RegisterOrg = () => {
       newErrors.area = "Area should be at least 2 characters.";
     }
 
-    if (
-      !/^(?=.*[A-Za-z])(?=.*\d)(?=.*[@$!%*#?&])[A-Za-z\d@$!%*#?&]{6,}$/.test(password)
-    ) {
-      newErrors.password =
-        "Password must be at least 6 characters and include a letter, number, and special character.";
-    }
+    // If the user is not already logged in, they must set a password
+    if (!currentUser) {
+      if (
+        !/^(?=.*[A-Za-z])(?=.*\d)(?=.*[@$!%*#?&])[A-Za-z\d@$!%*#?&]{6,}$/.test(password)
+      ) {
+        newErrors.password =
+          "Password must be at least 6 characters and include a letter, number, and special character.";
+      }
 
-    if (password !== confirmPassword) {
-      newErrors.confirmPassword = "Passwords do not match.";
+      if (password !== confirmPassword) {
+        newErrors.confirmPassword = "Passwords do not match.";
+      }
     }
 
     // NEW: must agree to terms
@@ -194,23 +218,21 @@ const RegisterOrg = () => {
     try {
       const { email, password, fullName } = form;
 
-      // 1) If a user is already logged in with this email and verified => skip verification
+      // 1) If a user is already logged in, trust that account and skip email editing
       const current = auth.currentUser;
-      if (current && current.email === email) {
-        // ensure display name is up to date
+      if (current) {
+        // keep profile name in sync
         if (!current.displayName || current.displayName !== fullName) {
           try {
             await updateProfile(current, { displayName: fullName });
           } catch {}
         }
         if (current.emailVerified) {
-          // save organizer to Mongo immediately
           await saveOrganizerToMongo(current);
           toast.success("You're already verified. Organizer profile created!");
           navigate("/my-profile");
           return;
         } else {
-          // not verified -> proceed to verification flow
           await sendEmailVerification(current);
           toast.success("Verification email sent. Please check your inbox.");
           setUserObj(current);
@@ -252,7 +274,6 @@ const RegisterOrg = () => {
             return;
           }
         } catch (signInErr) {
-          // Sign-in failed (wrong password, etc.)
           console.error(signInErr);
           toast.error("We found an existing account. Please log in with the correct password.");
           setIsSubmitting(false);
@@ -498,8 +519,19 @@ const RegisterOrg = () => {
                             onChange={handleChange}
                             required
                             placeholder="you@example.com"
-                            className="w-full px-4 py-2 rounded-xl bg-white border border-gray-200 placeholder-gray-400 focus:ring-2 focus:ring-emerald-500 outline-none"
+                            readOnly={!!currentUser}
+                            disabled={!!currentUser}
+                            className={`w-full px-4 py-2 rounded-xl border placeholder-gray-400 focus:ring-2 focus:ring-emerald-500 outline-none ${
+                              currentUser
+                                ? "bg-gray-100 cursor-not-allowed text-gray-700 border-gray-200"
+                                : "bg-white border-gray-200"
+                            }`}
                           />
+                          {currentUser && (
+                            <p className="text-xs text-gray-500 mt-1">
+                              You’re logged in as <span className="font-medium">{form.email}</span>.
+                            </p>
+                          )}
                           {errors.email && (
                             <p className="text-red-500 text-xs mt-1">{errors.email}</p>
                           )}
@@ -615,71 +647,65 @@ const RegisterOrg = () => {
                       </div>
                     </div>
 
-                    {/* Section: Security */}
-                    <div>
-                      <h3 className="text-sm font-semibold text-gray-700 mb-3">Security</h3>
-                      <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-                        {/* Password */}
-                        <div>
-                          <label className="block text-sm mb-1 text-gray-600">Password</label>
-                          <div className="relative">
-                            <input
-                              type={showPassword ? "text" : "password"}
-                              name="password"
-                              value={form.password}
-                              onChange={handleChange}
-                              required
-                              placeholder="Create a password"
-                              className="w-full px-4 py-2 rounded-xl bg-white border border-gray-200 placeholder-gray-400 focus:ring-2 focus:ring-emerald-500 outline-none"
-                            />
-                            <button
-                              type="button"
-                              onClick={() => setShowPassword((prev) => !prev)}
-                              className="absolute right-4 top-1/2 -translate-y-1/2 text-gray-600"
-                            >
-                              {showPassword ? (
-                                <FiEyeOff className="text-xl" />
-                              ) : (
-                                <FiEye className="text-xl" />
-                              )}
-                            </button>
+                    {/* Section: Security (hidden if already logged in) */}
+                    {!currentUser && (
+                      <div>
+                        <h3 className="text-sm font-semibold text-gray-700 mb-3">Security</h3>
+                        <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+                          {/* Password */}
+                          <div>
+                            <label className="block text-sm mb-1 text-gray-600">Password</label>
+                            <div className="relative">
+                              <input
+                                type={showPassword ? "text" : "password"}
+                                name="password"
+                                value={form.password}
+                                onChange={handleChange}
+                                required
+                                placeholder="Create a password"
+                                className="w-full px-4 py-2 rounded-xl bg-white border border-gray-200 placeholder-gray-400 focus:ring-2 focus:ring-emerald-500 outline-none"
+                              />
+                              <button
+                                type="button"
+                                onClick={() => setShowPassword((prev) => !prev)}
+                                className="absolute right-4 top-1/2 -translate-y-1/2 text-gray-600"
+                              >
+                                {showPassword ? <FiEyeOff className="text-xl" /> : <FiEye className="text-xl" />}
+                              </button>
+                            </div>
+                            {errors.password && (
+                              <p className="text-red-500 text-xs mt-1">{errors.password}</p>
+                            )}
                           </div>
-                          {errors.password && (
-                            <p className="text-red-500 text-xs mt-1">{errors.password}</p>
-                          )}
-                        </div>
 
-                        {/* Confirm Password */}
-                        <div>
-                          <label className="block text-sm mb-1 text-gray-600">Confirm Password</label>
-                          <div className="relative">
-                            <input
-                              type={showConfirmPassword ? "text" : "password"}
-                              name="confirmPassword"
-                              value={form.confirmPassword}
-                              onChange={handleChange}
-                              required
-                              placeholder="Confirm your password"
-                              className="w-full px-4 py-2 rounded-xl bg-white border border-gray-200 placeholder-gray-400 focus:ring-2 focus:ring-emerald-500 outline-none"
-                            />
-                            <button
-                              type="button"
-                              onClick={() => setShowConfirmPassword((prev) => !prev)}
-                              className="absolute right-4 top-1/2 -translate-y-1/2 text-gray-600"
-                            >
-                              {showConfirmPassword ? (
-                                <FiEyeOff className="text-xl" />
-                              ) : (
-                                <FiEye className="text-xl" />
-                              )}
-                            </button>
+                          {/* Confirm Password */}
+                          <div>
+                            <label className="block text-sm mb-1 text-gray-600">Confirm Password</label>
+                            <div className="relative">
+                              <input
+                                type={showConfirmPassword ? "text" : "password"}
+                                name="confirmPassword"
+                                value={form.confirmPassword}
+                                onChange={handleChange}
+                                required
+                                placeholder="Confirm your password"
+                                className="w-full px-4 py-2 rounded-xl bg-white border border-gray-200 placeholder-gray-400 focus:ring-2 focus:ring-emerald-500 outline-none"
+                              />
+                              <button
+                                type="button"
+                                onClick={() => setShowConfirmPassword((prev) => !prev)}
+                                className="absolute right-4 top-1/2 -translate-y-1/2 text-gray-600"
+                              >
+                                {showConfirmPassword ? <FiEyeOff className="text-xl" /> : <FiEye className="text-xl" />}
+                              </button>
+                            </div>
+                            {errors.confirmPassword && (
+                              <p className="text-red-500 text-xs mt-1">{errors.confirmPassword}</p>
+                            )}
                           </div>
-                          {errors.confirmPassword && (
-                            <p className="text-red-500 text-xs mt-1">{errors.confirmPassword}</p>
-                          )}
                         </div>
                       </div>
-                    </div>
+                    )}
 
                     {/* Terms */}
                     <div className="flex items-start gap-3">
@@ -722,15 +748,32 @@ const RegisterOrg = () => {
                         />
                       )}
                     </button>
+
+                    {/* Optional: switch account button */}
+                    {currentUser && (
+                      <button
+                        type="button"
+                        onClick={async () => {
+                          await auth.signOut();
+                          toast.success("Signed out. You can use a different email now.");
+                          navigate("/loginOrg");
+                        }}
+                        className="w-full mt-2 text-xs underline text-emerald-700"
+                      >
+                        Use a different email
+                      </button>
+                    )}
                   </form>
 
                   {/* Redirect to login */}
-                  <p className="mt-6 text-sm text-center text-gray-700">
-                    Already have an account?{" "}
-                    <Link to="/loginOrg" className="text-emerald-700 font-semibold underline">
-                      Log In
-                    </Link>
-                  </p>
+                  {!currentUser && (
+                    <p className="mt-6 text-sm text-center text-gray-700">
+                      Already have an account?{" "}
+                      <Link to="/loginOrg" className="text-emerald-700 font-semibold underline">
+                        Log In
+                      </Link>
+                    </p>
+                  )}
                 </>
               ) : (
                 // Verification message after registration

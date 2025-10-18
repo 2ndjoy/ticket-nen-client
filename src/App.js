@@ -58,7 +58,7 @@ function Routers() {
         <Route path="/register" element={<Register />} />
         <Route path="/registerorg" element={<RegisterOrg />} />
         <Route path="/my-profile" element={<MyProfile />} />
-        <Route path="/promoteevent" element={<PromoteEvent />} />
+        <Route path="/createevent" element={<PromoteEvent />} />
         <Route path="/forgot-password" element={<ForgetPassword />} />
         <Route path="/terms" element={<Termsss/>} />
         <Route path="/payment/:id" element={<Payment />} />
