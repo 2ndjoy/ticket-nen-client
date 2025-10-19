@@ -63,7 +63,7 @@ const Navbar = () => {
 
         {/* Desktop links */}
         <ul className="hidden lg:flex space-x-6 text-md font-light font-serif mr-20">
-          {["Home", "Event", "Create event", "Contact", "About Us"].map((text) => (
+          {["Home", "Event", "Create event", "Support", "About Us"].map((text) => (
             <motion.li key={text} whileHover={navLinkHover} className="cursor-pointer">
               <Link to={text === "Event" ? "/events" : `/${text.toLowerCase().replace(/\s/g, '')}`}>{text}</Link>
             </motion.li>
@@ -124,7 +124,7 @@ const Navbar = () => {
             variants={menuVariants}
           >
             <ul className="flex flex-col gap-4 text-md font-serif">
-              {["Home", "Event", "Contact", "Create event", "About Us"].map((text) => (
+              {["Home", "Event", "Support", "Create event", "About Us"].map((text) => (
                 <motion.li
                   key={text}
                   whileHover={{ scale: 1.05, color: "#117a76" }}

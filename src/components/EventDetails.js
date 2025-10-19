@@ -16,7 +16,7 @@ const EventDetails = () => {
     if (n === undefined || n === null || n === "") return "-";
     const num = Number(n);
     if (Number.isNaN(num)) return String(n);
-    return new Intl.NumberFormat(undefined, { style: "currency", currency: "USD" }).format(num);
+    return new Intl.NumberFormat(undefined, { style: "currency", currency: "BDT" }).format(num);
   };
 
   const toNumber = (v) => (v === null || v === undefined || v === "") ? undefined : Number(v);

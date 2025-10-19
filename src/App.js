@@ -51,7 +51,7 @@ function Routers() {
 
         <Route path="/" element={<Home />} />
         <Route path="/home" element={<Home />} />
-        <Route path="/contact" element={<Contact />} />
+        <Route path="/support" element={<Contact />} />
         <Route path="/aboutus" element={<AboutUs />} />
         <Route path="/login" element={<Log_in />} />
         <Route path="/loginOrg" element={<LoginOrg />} />

@@ -15,7 +15,7 @@ const Eevent = () => {
   const [showLocationDropdown, setShowLocationDropdown] = useState(false);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState(null);
-const navigate = useNavigate();
+  const navigate = useNavigate();
   const [isLoggedIn, setIsLoggedIn] = useState(false);
 
   useEffect(() => {
@@ -30,7 +30,7 @@ const navigate = useNavigate();
     'Gazipur', 'Narayanganj', 'Khulna', 'Mymensingh', 'Rajshahi', 'Rangpur', 'Sylhet'
   ];
 
-  const categories = ['All', 'Conferences', 'Competitions', 'Festivals', 'Concerts', 'Workshops', 'Sports', 'Theater'];
+  const categories = ['All', 'Conference', 'Concert', 'Workshop', 'Meetup', 'Festival', 'Sports', 'Other'];
 
   useEffect(() => {
     const controller = new AbortController();
@@ -155,9 +155,8 @@ const navigate = useNavigate();
             <div className="flex flex-wrap gap-3">
               {categories.map((category) => (
                 <button key={category} onClick={() => handleCategoryFilter(category)}
-                  className={`px-4 py-2 rounded-full font-medium transition-all duration-200 ${
-                    activeFilter === category ? 'bg-[#128f8b] text-white shadow-lg' : 'bg-gray-100 text-gray-700 hover:bg-gray-200'
-                  }`}
+                  className={`px-4 py-2 rounded-full font-medium transition-all duration-200 ${activeFilter === category ? 'bg-[#128f8b] text-white shadow-lg' : 'bg-gray-100 text-gray-700 hover:bg-gray-200'
+                    }`}
                 >
                   {category}
                 </button>
@@ -224,9 +223,16 @@ const navigate = useNavigate();
 
                   <div className="space-y-2 mb-4">
                     <div className="flex items-center gap-2 text-gray-600 text-sm">
-                      <Calendar className="w-4 h-4" /><span>{event.date}</span>
-                      <Clock className="w-4 h-4 ml-2" /><span>{event.time}</span>
+                      <Calendar className="w-4 h-4" />
+                      <span>{new Date(event.date).toLocaleDateString('en-GB', {
+                        year: 'numeric',
+                        month: 'long',
+                        day: 'numeric',
+                      })}</span>
+                      <Clock className="w-4 h-4 ml-2" />
+                      <span>{event.time}</span>
                     </div>
+
                     <div className="flex items-center gap-2 text-gray-600 text-sm">
                       <MapPin className="w-4 h-4" /><span>{event.location}</span>
                     </div>
@@ -238,12 +244,12 @@ const navigate = useNavigate();
 
                   <div className="flex items-center justify-between">
                     <div className="text-[#128f8b] font-bold text-lg">{event.price === "Free" ? "Free" : `Starts from ${event.regularPrice}/-`}</div>
-                  <button 
-  className="bg-[#128f8b] text-white font-semibold text-sm p-3 rounded" 
-  onClick={() => navigate(`/events/${event._id || event.id}`)}
->
-  See Details
-</button></div>
+                    <button
+                      className="bg-[#128f8b] text-white font-semibold text-sm p-3 rounded"
+                      onClick={() => navigate(`/events/${event._id || event.id}`)}
+                    >
+                      See Details
+                    </button></div>
                 </div>
               </div>
             ))}

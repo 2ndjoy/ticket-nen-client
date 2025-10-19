@@ -37,9 +37,9 @@ export default function Home() {
   }, []);
 
   const categories = [
-    { title: "Concerts", img: "https://source.unsplash.com/400x300/?concert" },
-    { title: "Sports", img: "https://source.unsplash.com/400x300/?sports" },
-    { title: "Theater", img: "https://source.unsplash.com/400x300/?theater" },
+    { title: "Concerts", img: "https://www.rollingstone.com/wp-content/uploads/2022/10/Post-Pandemic-and-Beyond-Looking-Ahead-to-the-Future-of-Live-Concerts.jpg?w=1581&h=1054&crop=1" },
+    { title: "Sports", img: "https://rockytopsportsworld.com/wp-content/uploads/2019/07/sports-balls.jpg" },
+    { title: "Theater", img: "https://upload.wikimedia.org/wikipedia/commons/7/71/Palais_Garnier._December_5%2C_2010.jpg" },
   ];
 
   return (

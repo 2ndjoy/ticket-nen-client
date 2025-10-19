@@ -2,7 +2,7 @@
 import React, { useState, useEffect, useRef } from "react";
 import { useParams, useNavigate, useLocation } from "react-router-dom";
 import { auth } from "../firebase";
-import { Calendar, Clock, MapPin, Star, Users } from 'lucide-react';
+import { Calendar, Clock, MapPin, Star, Users } from "lucide-react";
 import { QRCodeCanvas } from "qrcode.react";
 import html2canvas from "html2canvas";
 import toast from "react-hot-toast";
@@ -25,6 +25,54 @@ export default function Payment() {
   const ticketRef = useRef(null);
   const [suggestedEvents, setSuggestedEvents] = useState([]);
 
+  // --- helpers (shared with PDF look/feel) ---
+  const moneyBDT = (n) =>
+    `৳${Number(n || 0).toLocaleString("en-US", { maximumFractionDigits: 2 })}`;
+
+  const formatDate = (dateString) => {
+    const date = new Date(dateString);
+    return isNaN(date)
+      ? dateString
+      : date.toLocaleDateString("en-US", {
+          weekday: "long",
+          year: "numeric",
+          month: "long",
+          day: "numeric",
+        });
+  };
+
+  const formatTime = (timeString) => {
+    const [hours, minutes] = (timeString || "00:00").split(":");
+    const date = new Date();
+    date.setHours(parseInt(hours || 0, 10), parseInt(minutes || 0, 10));
+    return date.toLocaleTimeString("en-US", {
+      hour: "numeric",
+      minute: "2-digit",
+      hour12: true,
+    });
+  };
+
+  // small presentational subcomponent to match PDF label/value rhythm
+  function Info({ label, value, mono = false, accent = false }) {
+    return (
+      <div>
+        <div className="text-[10px] tracking-widest font-semibold uppercase text-[#6B7280]">
+          {label}
+        </div>
+        <div
+          className={[
+            "mt-1 text-[13px] md:text-sm",
+            mono ? "font-mono" : "font-semibold",
+            accent ? "text-[#0b7253]" : "text-[#111827]",
+          ].join(" ")}
+        >
+          {String(value ?? "-")}
+        </div>
+      </div>
+    );
+  }
+
+  // --- effects & data loading ---
   useEffect(() => {
     const params = new URLSearchParams(location.search);
     const t = params.get("type");
@@ -55,18 +103,21 @@ export default function Payment() {
         console.error(err);
       }
     })();
-  }, [id]); // eslint-disable-line
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [id]);
 
+  // Fetch suggested events (same category, excluding current)
   useEffect(() => {
     (async () => {
       if (!event) return;
       try {
-        const res = await fetch('http://localhost:5000/api/events');
-        if (res.o34589k) {
-          const data = await res.json();
-          const filtered = data.filter(e => e.category === event.category && e._id !== id).slice(0, 5);
-          setSuggestedEvents(filtered);
-        }
+        const res = await fetch("http://localhost:5000/api/events");
+        if (!res.ok) throw new Error("Failed to fetch events");
+        const data = await res.json();
+        const filtered = data
+          .filter((e) => e.category === event.category && e._id !== id)
+          .slice(0, 5);
+        setSuggestedEvents(filtered);
       } catch (err) {
         console.error("Failed to fetch suggested events:", err);
       }
@@ -75,20 +126,26 @@ export default function Payment() {
 
   useEffect(() => {
     if (!event || !ticketType) return;
-    const price = ticketType === "vip" ? Number(event.vipPrice || 0) : Number(event.regularPrice || 0);
+    const price =
+      ticketType === "vip"
+        ? Number(event.vipPrice || 0)
+        : Number(event.regularPrice || 0);
     setAmount(price * quantity);
   }, [event, ticketType, quantity]);
 
+  // --- quantity / inventory ---
   const availableForType = () => {
     if (!event || !ticketType) return 0;
-    return ticketType === "vip" ? Number(event.vipTickets || 0) : Number(event.regularTickets || 0);
-  };
-
+    return ticketType === "vip"
+      ? Number(event.vipTickets || 0)
+      : Number(event.regularTickets || 0);
+    };
   const clampQty = (q) => {
     const max = Math.max(0, availableForType());
     return Math.min(Math.max(1, q), Math.max(1, max));
   };
 
+  // --- booking / ticketid ---
   const generateTicketId = () => {
     const prefix = "TKT";
     const timestamp = Date.now().toString().slice(-8);
@@ -98,7 +155,7 @@ export default function Payment() {
 
   const handlePayment = async () => {
     if (!user) {
-       toast.error("Please login to complete the payment.");
+      toast.error("Please login to complete the payment.");
       return;
     }
     if (!phoneNumber) {
@@ -132,7 +189,7 @@ export default function Payment() {
           email: user.email,
           ticketType,
           quantity: qty,
-          // amount is computed server-side; we send nothing sensitive
+          // amount computed server-side
         }),
       });
 
@@ -183,18 +240,15 @@ export default function Payment() {
     }
   };
 
-  const formatDate = (dateString) => {
-    const date = new Date(dateString);
-    return isNaN(date) ? dateString : date.toLocaleDateString("en-US", {
-      weekday: "long", year: "numeric", month: "long", day: "numeric",
-    });
-  };
-
-  const formatTime = (timeString) => {
-    const [hours, minutes] = (timeString || "00:00").split(":");
-    const date = new Date();
-    date.setHours(parseInt(hours || 0, 10), parseInt(minutes || 0, 10));
-    return date.toLocaleTimeString("en-US", { hour: "numeric", minute: "2-digit", hour12: true });
+  // Helper: show best starting price for suggested cards
+  const getStartingPriceLabel = (e) => {
+    const vip = Number(e.vipPrice);
+    const reg = Number(e.regularPrice);
+    const candidates = [vip, reg].filter((n) => Number.isFinite(n) && n > 0);
+    if (candidates.length) return `Starts from ৳${Math.min(...candidates)}`;
+    if (e.price === "Free" || Number(e.price) === 0) return "Free";
+    if (e.price) return `Starts from ${e.price}`;
+    return "Price not set";
   };
 
   return (
@@ -202,7 +256,9 @@ export default function Payment() {
       {event && (
         <>
           <div className="text-center mb-6">
-            <h1 className="text-3xl font-bold text-[#0b7253]">Payment for {event.title}</h1>
+            <h1 className="text-3xl font-bold text-[#0b7253]">
+              Payment for {event.title}
+            </h1>
             <p className="text-lg text-gray-700">{event.subtitle}</p>
           </div>
 
@@ -219,12 +275,18 @@ export default function Payment() {
                   }}
                   className="w-full border-2 border-[#0b7253] rounded px-2 py-2"
                 >
-                  <option value="" disabled>Select a type</option>
+                  <option value="" disabled>
+                    Select a type
+                  </option>
                   {Number(event.vipPrice) > 0 && (
-                    <option value="vip">VIP — ৳{Number(event.vipPrice)} ({event.vipTickets} left)</option>
+                    <option value="vip">
+                      VIP — ৳{Number(event.vipPrice)} ({event.vipTickets} left)
+                    </option>
                   )}
                   {Number(event.regularPrice) > 0 && (
-                    <option value="regular">Regular — ৳{Number(event.regularPrice)} ({event.regularTickets} left)</option>
+                    <option value="regular">
+                      Regular — ৳{Number(event.regularPrice)} ({event.regularTickets} left)
+                    </option>
                   )}
                 </select>
               </div>
@@ -238,14 +300,16 @@ export default function Payment() {
                   onChange={(e) => setQuantity(clampQty(Number(e.target.value) || 1))}
                   className="w-full border-2 border-[#0b7253] rounded px-2 py-2"
                 />
-                <p className="text-xs text-gray-500 mt-1">{availableForType()} available</p>
+                <p className="text-xs text-gray-500 mt-1">
+                  {availableForType()} available
+                </p>
               </div>
               <div>
                 <label className="block text-sm font-semibold mb-2">Total</label>
                 <input
-                  type="number"
+                  type="text"
                   readOnly
-                  value={amount}
+                  value={moneyBDT(amount)}
                   className="w-full border-2 border-[#0b7253] rounded px-2 py-2 bg-gray-50"
                 />
               </div>
@@ -293,167 +357,204 @@ export default function Payment() {
               </p>
             </div>
 
-            {/* Ticket */}
+            {/* Unified Ticket (matches PDF design) */}
             <div
               ref={ticketRef}
-              className="bg-gradient-to-br from-[#0b7253] to-[#ef8bb7] p-8 rounded-2xl shadow-2xl text-white mx-auto max-w-2xl relative overflow-hidden"
-              style={{ background: `linear-gradient(135deg, #0b7253 0%, #ef8bb7 100%)` }}
+              className="relative mx-auto max-w-2xl rounded-2xl shadow-2xl overflow-hidden"
+              style={{
+                background: "linear-gradient(135deg,#0b7253 0%,#ef8bb7 100%)",
+              }}
             >
-              <div className="absolute -top-10 -right-10 w-32 h-32 bg-white/10 rounded-full"></div>
-              <div className="absolute -bottom-16 -left-16 w-40 h-40 bg-white/10 rounded-full"></div>
+              {/* soft blobs */}
+              <div className="pointer-events-none absolute -top-10 -right-10 w-36 h-36 bg-white/15 rounded-full" />
+              <div className="pointer-events-none absolute -bottom-16 -left-16 w-48 h-48 bg-white/15 rounded-full" />
 
-              <div className="text-center mb-6 relative z-10">
-                <div className="inline-block bg-white/20 backdrop-blur-sm rounded-full px-4 py-2 mb-4">
-                  <span className="text-sm font-semibold tracking-wide">EVENT TICKET</span>
+              {/* content card */}
+              <div className="relative z-10 p-7 md:p-8">
+                {/* pill */}
+                <div className="inline-flex -mt-3 mb-5">
+                  <span
+                    className="px-3.5 py-1.5 rounded-full text-[11px] font-semibold tracking-wider text-white"
+                    style={{ background: "#ef8bb7" }}
+                  >
+                    EVENT TICKET
+                  </span>
                 </div>
-                <h1 className="text-3xl font-bold mb-2 leading-tight">{event.title}</h1>
-                <p className="text-lg opacity-90">{event.subtitle}</p>
-              </div>
 
-              <div className="grid grid-cols-1 md:grid-cols-3 gap-6 mb-6 relative z-10">
-                <div className="md:col-span-2 space-y-4">
-                  <div className="bg-white/10 backdrop-blur-sm rounded-lg p-4">
-                    <div className="grid grid-cols-2 gap-4">
-                      <div>
-                        <p className="text-sm opacity-75 uppercase tracking-wide">Date</p>
-                        <p className="font-semibold">{formatDate(event.date)}</p>
+                <div className="rounded-xl bg-white/95 backdrop-blur-sm p-5 md:p-6">
+                  {/* header */}
+                  <div className="text-center mb-5">
+                    <h1 className="text-2xl md:text-3xl font-extrabold text-[#0F172A] leading-tight">
+                      {event.title}
+                    </h1>
+                    {event.subtitle && (
+                      <p className="mt-1 text-[13px] md:text-sm text-[#64748B]">
+                        {event.subtitle}
+                      </p>
+                    )}
+                  </div>
+
+                  {/* divider */}
+                  <div className="h-px w-full bg-[#E2E8F0] mb-5" />
+
+                  <div className="grid md:grid-cols-3 gap-6">
+                    {/* left info column */}
+                    <div className="md:col-span-2 space-y-4">
+                      <div className="grid grid-cols-2 gap-4">
+                        <Info label="Date" value={formatDate(event.date)} />
+                        <Info label="Time" value={formatTime(event.time)} />
+                        <div className="col-span-2">
+                          <Info label="Venue" value={event.location} />
+                        </div>
                       </div>
-                      <div>
-                        <p className="text-sm opacity-75 uppercase tracking-wide">Time</p>
-                        <p className="font-semibold">{formatTime(event.time)}</p>
+
+                      <div className="grid grid-cols-2 gap-4">
+                        <Info label="Attendee" value={user.displayName} />
+                        <Info label="Phone" value={phoneNumber} />
                       </div>
-                      <div className="col-span-2">
-                        <p className="text-sm opacity-75 uppercase tracking-wide">Venue</p>
-                        <p className="font-semibold">{event.location}</p>
+
+                      <Info label="Email" value={user.email} />
+
+                      <div className="grid grid-cols-3 gap-4">
+                        <Info
+                          label="Ticket Type"
+                          value={String(bookingData.ticketType).toUpperCase()}
+                        />
+                        <Info label="Quantity" value={bookingData.quantity} />
+                        <Info label="Amount Paid" value={moneyBDT(amount)} />
+                      </div>
+
+                      <Info label="Booking ID" value={bookingData._id} mono />
+                      <Info label="Ticket ID" value={ticketId} mono accent />
+                    </div>
+
+                    {/* right QR panel */}
+                    <div className="flex flex-col items-center">
+                      <div className="w-full rounded-xl bg-[#F8FAFC] border border-[#E2E8F0] p-4 flex flex-col items-center">
+                        <div className="bg-white rounded-lg p-3 shadow">
+                          <QRCodeCanvas
+                            value={JSON.stringify({
+                              ticketId,
+                              bookingId: bookingData._id,
+                              eventId: event._id,
+                              eventTitle: event.title,
+                              name: user.displayName,
+                              email: user.email,
+                              phoneNumber,
+                              amount,
+                              ticketType: bookingData.ticketType,
+                              quantity: bookingData.quantity,
+                              date: event.date,
+                              time: event.time,
+                              venue: event.location,
+                              generatedAt: new Date().toISOString(),
+                            })}
+                            size={150}
+                            level="H"
+                            includeMargin
+                            fgColor="#000000"
+                            bgColor="#ffffff"
+                          />
+                        </div>
+                        <p className="mt-2 text-xs text-[#64748B]">Scan to verify</p>
                       </div>
                     </div>
                   </div>
 
-                  <div className="bg-white/10 backdrop-blur-sm rounded-lg p-4">
-                    <div className="grid grid-cols-2 gap-4">
-                      <div>
-                        <p className="text-sm opacity-75 uppercase tracking-wide">Attendee</p>
-                        <p className="font-semibold">{user.displayName}</p>
-                        <p className="text-sm opacity-90">{user.email}</p>
-                      </div>
-                      <div>
-                        <p className="text-sm opacity-75 uppercase tracking-wide">Phone</p>
-                        <p className="font-semibold">{phoneNumber}</p>
-                      </div>
-                      <div>
-                        <p className="text-sm opacity-75 uppercase tracking-wide">Ticket ID</p>
-                        <p className="font-semibold text-lg text-yellow-200">{ticketId}</p>
-                      </div>
-                      <div>
-                        <p className="text-sm opacity-75 uppercase tracking-wide">Amount Paid</p>
-                        <p className="font-semibold text-xl">৳{amount}</p>
-                      </div>
-                      <div>
-                        <p className="text-sm opacity-75 uppercase tracking-wide">Type</p>
-                        <p className="font-semibold capitalize">{bookingData.ticketType}</p>
-                      </div>
-                      <div>
-                        <p className="text-sm opacity-75 uppercase tracking-wide">Quantity</p>
-                        <p className="font-semibold">{bookingData.quantity}</p>
-                      </div>
-                      <div className="col-span-2">
-                        <p className="text-sm opacity-75 uppercase tracking-wide">Booking ID</p>
-                        <p className="font-semibold text-xs opacity-75">{bookingData._id}</p>
-                      </div>
-                    </div>
+                  {/* footer */}
+                  <div className="mt-6 pt-4 border-t border-[#E2E8F0] text-center">
+                    <p className="text-[11px] text-[#64748B]">
+                      Present this ticket at the venue entrance. Keep a digital copy as backup.
+                    </p>
+                    <p className="mt-1 text-[11px] font-semibold text-[#0b7253]">
+                      Generated {new Date().toLocaleString()}
+                    </p>
                   </div>
                 </div>
-
-                <div className="flex flex-col items-center justify-center">
-                  <div className="bg-white rounded-lg p-4 shadow-lg">
-                    <QRCodeCanvas
-                      value={JSON.stringify({
-                        ticketId,
-                        bookingId: bookingData._id,
-                        eventId: event._id,
-                        eventTitle: event.title,
-                        name: user.displayName,
-                        email: user.email,
-                        phoneNumber,
-                        amount,
-                        ticketType: bookingData.ticketType,
-                        quantity: bookingData.quantity,
-                        date: event.date,
-                        time: event.time,
-                        venue: event.location,
-                        generatedAt: new Date().toISOString(),
-                      })}
-                      size={150}
-                      level="H"
-                      includeMargin={true}
-                      fgColor="#000000"
-                      bgColor="#ffffff"
-                    />
-                  </div>
-                  <p className="text-sm mt-2 opacity-90 text-center">Scan for verification</p>
-                </div>
-              </div>
-
-              <div className="border-t border-white/20 pt-4 text-center text-sm opacity-75 relative z-10">
-                <p>Present this ticket at the venue entrance</p>
-                <p className="mt-1">Generated on {new Date().toLocaleString()}</p>
               </div>
             </div>
 
+            {/* Download */}
             <div className="text-center mt-6">
               <button
                 onClick={downloadTicket}
-                className="bg-[#0b7253] text-white font-semibold py-3 px-8 rounded-lg hover:bg-[#c01456] transition shadow-lg inline-flex items-center gap-2"
+                className="bg-[#0b7253] text-white font-semibold py-3 px-8 rounded-lg hover:bg-[#0a6b4c] transition shadow-lg inline-flex items-center gap-2"
               >
                 <svg className="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                  <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M12 10v6m0 0l-3-3m3 3l3-3m2 8H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z"></path>
+                  <path
+                    strokeLinecap="round"
+                    strokeLinejoin="round"
+                    strokeWidth="2"
+                    d="M12 10v6m0 0l-3-3m3 3l3-3m2 8H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z"
+                  ></path>
                 </svg>
                 Download Ticket
               </button>
-              <p className="text-sm text-gray-600 mt-2">Save your ticket for easy access at the event</p>
+              <p className="text-sm text-gray-600 mt-2">
+                Save your ticket for easy access at the event
+              </p>
             </div>
           </div>
         )}
       </div>
 
+      {/* Suggested Events Section */}
       {suggestedEvents.length > 0 && (
         <div className="mt-16">
-          <h2 className="text-2xl font-bold text-center mb-6 text-gray-800">You Might Also Like</h2>
+          <h2 className="text-2xl font-bold text-center mb-6 text-gray-800">
+            You Might Also Like
+          </h2>
           <div className="flex overflow-x-auto space-x-6 pb-4">
             {suggestedEvents.map((sEvent) => (
-              <div key={sEvent._id} className="flex-shrink-0 w-80 bg-white rounded-2xl shadow-lg overflow-hidden hover:shadow-xl transition-all duration-300 hover:scale-105">
+              <div
+                key={sEvent._id}
+                className="flex-shrink-0 w-80 bg-white rounded-2xl shadow-lg overflow-hidden hover:shadow-xl transition-all duration-300 hover:scale-105"
+              >
                 <div className="relative h-40 overflow-hidden">
-                  <img src={sEvent.image} alt={sEvent.title} className="w-full h-full object-cover" />
+                  <img
+                    src={sEvent.image}
+                    alt={sEvent.title}
+                    className="w-full h-full object-cover"
+                  />
                   <div className="absolute top-3 left-3 bg-black bg-opacity-70 text-white px-3 py-1 rounded-full text-xs font-medium">
                     {sEvent.category}
                   </div>
                 </div>
 
                 <div className="p-4">
-                  <h3 className="font-bold text-md text-gray-800 mb-1 line-clamp-2">{sEvent.title}</h3>
-                  <p className="text-gray-600 text-xs mb-3 line-clamp-2">{sEvent.subtitle}</p>
+                  <h3 className="font-bold text-md text-gray-800 mb-1 line-clamp-2">
+                    {sEvent.title}
+                  </h3>
+                  <p className="text-gray-600 text-xs mb-3 line-clamp-2">
+                    {sEvent.subtitle}
+                  </p>
 
                   <div className="space-y-1 mb-3">
                     <div className="flex items-center gap-2 text-gray-600 text-xs">
-                      <Calendar className="w-3 h-3" /><span>{sEvent.date}</span>
-                      <Clock className="w-3 h-3 ml-1" /><span>{sEvent.time}</span>
+                      <Calendar className="w-3 h-3" />
+                      <span>{formatDate(sEvent.date)}</span>
+                      <Clock className="w-3 h-3 ml-1" />
+                      <span>{formatTime(sEvent.time)}</span>
                     </div>
                     <div className="flex items-center gap-2 text-gray-600 text-xs">
-                      <MapPin className="w-3 h-3" /><span>{sEvent.location}</span>
+                      <MapPin className="w-3 h-3" />
+                      <span>{sEvent.location}</span>
                     </div>
                     <div className="flex items-center gap-3 text-xs">
-                      <div className="flex items-center gap-1"><Users className="w-3 h-3 text-gray-500" /><span className="text-gray-600">{sEvent.attendees}</span></div>
-                      <div className="flex items-center gap-1"><Star className="w-3 h-3 text-yellow-500 fill-current" /><span className="text-gray-600">{sEvent.rating}</span></div>
+                      <div className="flex items-center gap-1">
+                        <Users className="w-3 h-3 text-gray-500" />
+                        <span className="text-gray-600">{sEvent.attendees}</span>
+                      </div>
+                      <div className="flex items-center gap-1">
+                        <Star className="w-3 h-3 text-yellow-500 fill-current" />
+                        <span className="text-gray-600">{sEvent.rating}</span>
+                      </div>
                     </div>
                   </div>
 
                   <div className="flex items-center justify-between">
                     <div className="text-[#0b7253] font-bold text-md">
-                      {Number(sEvent.vipPrice) > 0 || Number(sEvent.regularPrice) > 0
-                        ? `Starts from ৳${Math.min(
-                            ...( [Number(sEvent.vipPrice)||Infinity, Number(sEvent.regularPrice)||Infinity].filter(n=>Number.isFinite(n)))
-                          )}`
-                        : (sEvent.price === "Free" ? "Free" : sEvent.price)}
+                      {getStartingPriceLabel(sEvent)}
                     </div>
                     <button
                       className="bg-[#0b7253] text-white font-semibold text-xs px-3 py-2 rounded-md"
@@ -471,4 +572,3 @@ export default function Payment() {
     </div>
   );
 }
-  

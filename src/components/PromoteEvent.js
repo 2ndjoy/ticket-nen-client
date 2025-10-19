@@ -765,7 +765,7 @@ export default function PromoteEvent() {
                 </div>
 
                 <div>
-                  <label className="block mb-1 text-sm text-gray-700">VIP Ticket Price *</label>
+                  <label className="block mb-1 text-sm text-gray-700">VIP Ticket Price <span>in BDT</span> *</label>
                   <input
                     type="number"
                     name="vipPrice"
@@ -793,7 +793,7 @@ export default function PromoteEvent() {
                 </div>
 
                 <div>
-                  <label className="block mb-1 text-sm text-gray-700">Regular Ticket Price *</label>
+                  <label className="block mb-1 text-sm text-gray-700">Regular Ticket Price <span>in BDT</span> *</label>
                   <input
                     type="number"
                     name="regularPrice"
