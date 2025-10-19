@@ -5,6 +5,7 @@ import { auth } from "../firebase";
 import { Calendar, Clock, MapPin, Star, Users } from 'lucide-react';
 import { QRCodeCanvas } from "qrcode.react";
 import html2canvas from "html2canvas";
+import toast from "react-hot-toast";
 
 export default function Payment() {
   const { id } = useParams();
@@ -97,7 +98,7 @@ export default function Payment() {
 
   const handlePayment = async () => {
     if (!user) {
-      alert("Please login to complete the payment.");
+       toast.error("Please login to complete the payment.");
       return;
     }
     if (!phoneNumber) {

@@ -1,4 +1,4 @@
-import React, { useEffect, useMemo, useState } from "react";
+import React, { useEffect, useState } from "react";
 import { auth } from "../../firebase";
 
 const API_BASE =
@@ -9,10 +9,7 @@ export default function OrganizerPerformance() {
   const [metrics, setMetrics] = useState(null);
   const [error, setError] = useState("");
 
-  // filters
-  const [q, setQ] = useState("");
-  const [from, setFrom] = useState("");
-  const [to, setTo] = useState("");
+
 
   const [user, setUser] = useState(null);
 
@@ -29,13 +26,11 @@ export default function OrganizerPerformance() {
     try {
       const token = await user.getIdToken();
       const params = new URLSearchParams();
-      if (q) params.set("q", q);
-      if (from) params.set("from", from);
-      if (to) params.set("to", to);
 
-      const res = await fetch(`${API_BASE}/api/organizers/metrics?${params.toString()}`, {
-        headers: { Authorization: `Bearer ${token}` },
-      });
+      const res = await fetch(
+        `${API_BASE}/api/organizers/metrics?${params.toString()}`,
+        { headers: { Authorization: `Bearer ${token}` } }
+      );
       if (!res.ok) {
         const t = await res.text();
         throw new Error(t || `Failed (${res.status})`);
@@ -51,8 +46,7 @@ export default function OrganizerPerformance() {
   };
 
   useEffect(() => {
-    if (user) fetchMetrics(); // initial load
-    // eslint-disable-next-line react-hooks/exhaustive-deps
+    if (user) fetchMetrics(); 
   }, [user]);
 
   const totals = metrics?.totals || {
@@ -67,90 +61,54 @@ export default function OrganizerPerformance() {
   const events = metrics?.events || [];
 
   const currency = (n) =>
-    new Intl.NumberFormat(undefined, { style: "currency", currency: "BDT", maximumFractionDigits: 0 }).format(n || 0);
+    new Intl.NumberFormat(undefined, {
+      style: "currency",
+      currency: "BDT",
+      maximumFractionDigits: 0,
+    }).format(n || 0);
 
-  const pct = (n) =>
-    `${Number.isFinite(n) ? n.toFixed(1) : "0.0"}%`;
 
-  const onApplyFilters = (e) => {
-    e.preventDefault();
-    fetchMetrics();
-  };
-
-  const onReset = () => {
-    setQ("");
-    setFrom("");
-    setTo("");
-    fetchMetrics();
-  };
 
   return (
     <div className="max-w-6xl mx-auto p-4 sm:p-6">
       <div className="mb-6">
         <h1 className="text-2xl sm:text-3xl font-bold">Ticket Availability & Sales</h1>
-        <p className="text-gray-600">Track capacity, sell-through, and revenue across your events.</p>
+        <p className="text-gray-600">
+          Track capacity, sell-through, and revenue across your events.
+        </p>
       </div>
 
-      {/* Filters */}
-      <form onSubmit={onApplyFilters} className="rounded-xl border bg-white p-4 shadow-sm mb-6">
-        <div className="grid grid-cols-1 sm:grid-cols-5 gap-3">
-          <div className="sm:col-span-2">
-            <label className="block text-sm text-gray-700 mb-1">Search</label>
-            <input
-              type="text"
-              value={q}
-              onChange={(e) => setQ(e.target.value)}
-              placeholder="Title, category, location…"
-              className="w-full border rounded-lg px-3 py-2"
-            />
-          </div>
-          <div>
-            <label className="block text-sm text-gray-700 mb-1">From</label>
-            <input
-              type="date"
-              value={from}
-              onChange={(e) => setFrom(e.target.value)}
-              className="w-full border rounded-lg px-3 py-2"
-            />
-          </div>
-          <div>
-            <label className="block text-sm text-gray-700 mb-1">To</label>
-            <input
-              type="date"
-              value={to}
-              onChange={(e) => setTo(e.target.value)}
-              className="w-full border rounded-lg px-3 py-2"
-            />
-          </div>
-          <div className="flex items-end gap-2">
-            <button type="submit" className="bg-emerald-600 text-white px-4 py-2 rounded-lg">Apply</button>
-            <button type="button" onClick={onReset} className="px-4 py-2 rounded-lg border">Reset</button>
-          </div>
-        </div>
-      </form>
-
-      {/* KPI Cards */}
       <div className="grid grid-cols-2 sm:grid-cols-4 gap-4 mb-6">
         <div className="rounded-xl border bg-white p-4 shadow-sm">
-          <p className="text-xs uppercase tracking-wide text-gray-500">Revenue</p>
-          <p className="mt-1 text-2xl font-bold">{currency(totals.revenue)}</p>
-        </div>
-        <div className="rounded-xl border bg-white p-4 shadow-sm">
-          <p className="text-xs uppercase tracking-wide text-gray-500">Tickets Sold</p>
+          <p className="text-xs uppercase tracking-wide text-gray-500">
+            Tickets Sold
+          </p>
           <p className="mt-1 text-2xl font-bold">{totals.ticketsSold}</p>
         </div>
         <div className="rounded-xl border bg-white p-4 shadow-sm">
-          <p className="text-xs uppercase tracking-wide text-gray-500">Remaining</p>
+          <p className="text-xs uppercase tracking-wide text-gray-500">
+            Remaining
+          </p>
           <p className="mt-1 text-2xl font-bold">{totals.remaining}</p>
         </div>
         <div className="rounded-xl border bg-white p-4 shadow-sm">
-          <p className="text-xs uppercase tracking-wide text-gray-500">Sell-through</p>
-          <p className="mt-1 text-2xl font-bold">{pct(totals.sellThrough)}</p>
+          <p className="text-xs uppercase tracking-wide text-gray-500">
+            Revenue
+          </p>
+          <p className="mt-1 text-2xl font-bold">N/A</p>
+        </div>
+        <div className="rounded-xl border bg-white p-4 shadow-sm">
+          <p className="text-xs uppercase tracking-wide text-gray-500">
+            Sell-through
+          </p>
+          <p className="mt-1 text-2xl font-bold">N/A</p>
         </div>
       </div>
 
       {/* Error/Loading */}
-      {loading && <div className="rounded-xl border bg-white p-6 shadow-sm">Loading…</div>}
+      {loading && (
+        <div className="rounded-xl border bg-white p-6 shadow-sm">Loading…</div>
+      )}
       {error && !loading && (
         <div className="rounded-xl border bg-red-50 p-4 text-red-700 shadow-sm mb-4">
           {error}
@@ -187,25 +145,30 @@ export default function OrganizerPerformance() {
                     <div className="text-xs text-gray-500">{ev.time}</div>
                   </td>
 
-                  {/* VIP */}
+                  {/* VIP (no progress bar) */}
                   <td className="p-3">
                     <div className="text-xs text-gray-500 mb-1">
-                      ৳{ev.vip.price ?? 0}
+                      Price: {currency(ev.vip.price ?? 0)}
                     </div>
-                    <Progress sold={ev.vip.sold} cap={ev.vip.capacity} />
-                    <div className="text-xs text-gray-600 mt-1">
-                      {ev.vip.sold} / {ev.vip.capacity} ({ev.vip.capacity - ev.vip.sold} left)
+                    <div className="text-xs text-gray-700">
+                      {ev.vip.sold} / {ev.vip.capacity} (
+                      {Math.max(0, (ev.vip.capacity || 0) - (ev.vip.sold || 0))}{" "}
+                      left)
                     </div>
                   </td>
 
-                  {/* Regular */}
+                  {/* Regular (no progress bar) */}
                   <td className="p-3">
                     <div className="text-xs text-gray-500 mb-1">
-                      ৳{ev.regular.price ?? 0}
+                      Price: {currency(ev.regular.price ?? 0)}
                     </div>
-                    <Progress sold={ev.regular.sold} cap={ev.regular.capacity} />
-                    <div className="text-xs text-gray-600 mt-1">
-                      {ev.regular.sold} / {ev.regular.capacity} ({ev.regular.capacity - ev.regular.sold} left)
+                    <div className="text-xs text-gray-700">
+                      {ev.regular.sold} / {ev.regular.capacity} (
+                      {Math.max(
+                        0,
+                        (ev.regular.capacity || 0) - (ev.regular.sold || 0)
+                      )}{" "}
+                      left)
                     </div>
                   </td>
 
@@ -219,8 +182,8 @@ export default function OrganizerPerformance() {
                     </div>
                   </td>
 
-                  <td className="p-3">{currency(ev.totals.revenue)}</td>
-                  <td className="p-3">{pct(ev.totals.sellThrough)}</td>
+                  <td className="p-3">N/A</td>
+                  <td className="p-3">N/A</td>
                 </tr>
               ))}
 
@@ -235,20 +198,6 @@ export default function OrganizerPerformance() {
           </table>
         </div>
       )}
-    </div>
-  );
-}
-
-// Simple progress bar
-function Progress({ sold, cap }) {
-  const pct = cap > 0 ? Math.min(100, Math.max(0, (sold / cap) * 100)) : 0;
-  return (
-    <div className="h-2 w-40 bg-gray-200 rounded-full overflow-hidden">
-      <div
-        className="h-full bg-emerald-600"
-        style={{ width: `${pct}%` }}
-        title={`${sold}/${cap}`}
-      />
     </div>
   );
 }
